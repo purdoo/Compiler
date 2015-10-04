@@ -12,8 +12,11 @@ pattern = r'(d+c+b+a*)|(d+b+a+)|(d+c+a+)|(c+b+a+)'
 true_testcases, false_testcases = [], []
 
 true_testcases = ['dcba', 'cba', 'ddccaa', 'dca', 'ccbaaa', 'dddbbaa']
-false_testcases = ['d', 'abc', 'dcbabcb', 'dbca', 'cbb']
+false_testcases = ['d', 'abc', 'dcbab', 'dbca', 'cbb']
 
+
+print(re.search(pattern, 'dcbab').group(0))
+"""
 print('True Testcases')
 for t in true_testcases:
 	if re.match(pattern, t):
@@ -27,4 +30,4 @@ for f in false_testcases:
 		print('Failed')
 	else:
 		print('Passed')
-
+"""
