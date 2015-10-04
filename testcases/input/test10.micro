@@ -9,17 +9,14 @@ BEGIN
 	END
   FUNCTION INT main()
 	BEGIN
-	IF (a = b)
+	--This line should cause parse error
+	IF (a + b)
 		
 		h:=0;
 	ELSE
-
-	    FOR (j := 0; j <= 10; j := j + 1)
-		     a := j;
-	    ROF
-
-	FI
 	
+		j:=1;
+	FI
 	RETURN a+b;
 	END
 END
