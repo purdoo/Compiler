@@ -6,12 +6,13 @@ options {
 @rulecatch{
 	catch (RecognitionException e) 
 	{
-	     	throw e;
+		throw e;
 	}
 }
 
 @members{
-	public SymbolTable ST = new SymbolTable("GLOBAL");
+	public SymbolTableStack STACK = new SymbolTableStack();
+	public SymbolTable TABLE = new SymbolTable("GLOBAL");
 }
 
 /* Program */
@@ -25,7 +26,7 @@ decl_list: string_decl_list | var_decl_list ;
 /* Global String Declaration */
 string_decl: 'STRING' id ':=' str ';'
 {
-	ST.Add($id.text, $str.text);
+	TABLE.Add($id.text, $str.text);
 }
 ;
 
@@ -50,11 +51,12 @@ param_decl_tail: ',' param_decl param_decl_tail | ;
 
 /* Function Declarations */
 func_declarations: func_decl*;
-func_decl: 'FUNCTION' any_type id '(' param_decl_list ')' 'BEGIN' func_body 'END'
-{
-	ST.AddScope($id.text);
+func_decl: 'FUNCTION' any_type id 
+{ 
+	STACK.AddTable(TABLE); 
+	TABLE = new SymbolTable($id.text);
 }
-;
+'(' param_decl_list ')' 'BEGIN' func_body 'END';
 
 func_body: decl stmt_list ;
 
@@ -84,8 +86,18 @@ addop: '+' | '-';
 mulop: '*' | '/';
 
 /* Complex Statements and Condition */ 
-if_stmt: 'IF' '(' cond ')' decl stmt_list else_part 'FI';
-else_part: ('ELSE' decl stmt_list )? ;
+if_stmt: 'IF' 
+{
+	STACK.AddTable(TABLE);
+	TABLE = new SymbolTable();
+}
+'(' cond ')' decl stmt_list else_part 'FI';
+
+else_part: ('ELSE' decl stmt_list )? 
+{
+	STACK.AddTable(TABLE);
+	TABLE = new SymbolTable();
+};
 cond: expr compop expr;
 compop: '<' | '>' | '=' | '!=' | '<=' | '>=';
 
@@ -94,8 +106,13 @@ incr_stmt: assign_expr | ;
 
 /* ECE 468 Student version of While_stmt */
 while_stmt: 'WHILE' '(' cond ')' decl stmt_list 'ENDWHILE';
-for_stmt: 'FOR' '(' init_stmt ';' cond ';' incr_stmt ')' decl stmt_list 'ROF'; 
-
+for_stmt: 'FOR' 
+{
+	STACK.AddTable(TABLE);
+	TABLE = new SymbolTable();
+} 
+'(' init_stmt ';' cond ';' incr_stmt ')' decl stmt_list 'ROF'
+;
 
 KEYWORD : 'PROGRAM' | 'BEGIN' | 'END' | 'FUNCTION' | 'READ' | 'WRITE' | 'IF' | 'ELSE' | 'FI' | 'FOR' | 'ROF' | 'CONTINUE' | 'BREAK' | 'RETURN' | 'INT' | 'VOID' | 'STRING' | 'FLOAT' ;
 
