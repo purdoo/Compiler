@@ -26,9 +26,8 @@ decl_list: string_decl_list | var_decl_list ;
 /* Global String Declaration */
 string_decl: 'STRING' id ':=' str ';'
 {
-	TABLE.Add($id.text, $str.text);
-}
-;
+	TABLE.AddGlobalString($id.text, $str.text);
+};
 
 string_decl_list: string_decl+;
 str: STRINGLITERAL;

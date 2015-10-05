@@ -23,7 +23,10 @@ class SymbolTableStack
 			System.out.println("Symbol table " + ST.Scope);
 			for(Symbol S : ST.SYMBOLS)
 			{
-				// add print statements			
+				if(S.var_type == "STRING")
+				{
+					System.out.println("name " + S.var_name + " type " + S.var_type + " value " + S.Value);
+				}		
 			}
 			System.out.print("\n");
 		}
@@ -46,9 +49,9 @@ class SymbolTable
 	{
 		this.Scope = Scope;
 	}
-	public void Add(String var_name, String type_name)
+	public void AddGlobalString(String var_name, String val)
 	{
-		this.SYMBOLS.add(new Symbol(var_name, type_name));
+		this.SYMBOLS.add(new Symbol(var_name, "STRING", val));
 	}
 
 }
@@ -58,10 +61,11 @@ class Symbol
 	protected String var_name;
 	protected String var_type;
 	protected String Value;
-	public Symbol(String var_name, String type_name)
+	public Symbol(String var_name, String var_type, String val)
 	{	
 		this.var_name = var_name;
 		this.var_type = var_type;
+		this.Value = val;
 	}
 }
 
