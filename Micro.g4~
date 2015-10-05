@@ -27,8 +27,7 @@ decl_list: string_decl_list | var_decl_list ;
 string_decl: 'STRING' id ':=' str ';'
 {
 	TABLE.AddGlobalString($id.text, $str.text);
-}
-;
+};
 
 string_decl_list: string_decl+;
 str: STRINGLITERAL;
@@ -36,11 +35,15 @@ str: STRINGLITERAL;
 /* Variable Declaration */
 
 var_decl_list: var_decl+;
-var_decl: var_type id_list ';';
+
+var_decl: var_type id_list ';'
+{
+	TABLE.Add($var_type.text, $id_list.vars);
+};
+
 var_type: 'FLOAT' | 'INT';
 any_type: var_type | 'VOID'; 
-id_list: id (',' id)*;
-
+id_list returns [ArrayList<String> vars]: id { vars.add($id.text); } (',' id {vars.add($id.text);})*;
 
 
 /* Function Paramater List */

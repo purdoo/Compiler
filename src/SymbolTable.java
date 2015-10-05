@@ -49,6 +49,12 @@ class SymbolTable
 	{
 		this.Scope = Scope;
 	}
+	
+	public void Add(String var_name, ArrayList<String> vars)
+	{
+		//this.SYMBOLS.add(new Symbol(var_name, "STRING", val));
+	}
+
 	public void AddGlobalString(String var_name, String val)
 	{
 		this.SYMBOLS.add(new Symbol(var_name, "STRING", val));

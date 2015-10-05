@@ -35,11 +35,15 @@ str: STRINGLITERAL;
 /* Variable Declaration */
 
 var_decl_list: var_decl+;
-var_decl: var_type id_list ';';
+
+var_decl: var_type id_list ';'
+{
+	TABLE.Add($var_type.text, $id_list.vars);
+};
+
 var_type: 'FLOAT' | 'INT';
 any_type: var_type | 'VOID'; 
-id_list: id (',' id)*;
-
+id_list returns [ArrayList<String> vars]: {ArrayList<String> vars = new ArrayList<String>();} id { vars.add($id.text); } (',' id {vars.add($id.text);})*;
 
 
 /* Function Paramater List */
