@@ -40,6 +40,8 @@ var_type: 'FLOAT' | 'INT';
 any_type: var_type | 'VOID'; 
 id_list: id (',' id)*;
 
+
+
 /* Function Paramater List */
 param_decl_list: param_decl param_decl_tail | ;
 param_decl: var_type id;
@@ -47,8 +49,13 @@ param_decl_tail: ',' param_decl param_decl_tail | ;
 
 
 /* Function Declarations */
-func_declarations: func_decl* ;
-func_decl: 'FUNCTION' any_type id '(' param_decl_list ')' 'BEGIN' func_body 'END';
+func_declarations: func_decl*;
+func_decl: 'FUNCTION' any_type id '(' param_decl_list ')' 'BEGIN' func_body 'END'
+{
+	ST.AddScope($id.text);
+}
+;
+
 func_body: decl stmt_list ;
 
 /* Statement List */

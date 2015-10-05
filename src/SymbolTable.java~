@@ -4,6 +4,7 @@ public class SymbolTable
 {
 	public String Scope;
 	public List<Symbol> SL = new ArrayList<Symbol>();
+	public List<String> Scopes = new ArrayList<String>();
 	public SymbolTable(String Scope)
 	{
 		this.Scope = Scope;
@@ -12,9 +13,20 @@ public class SymbolTable
 	{
 		this.SL.add(new Symbol(var_name, type_name));
 	}
+	public void AddScope(String function_name)
+	{
+		this.Scopes.add(this.Scope);
+		this.Scope = function_name;	
+	}
+	
 	public void Print()
 	{
+		this.Scopes.add(this.Scope);
 		System.out.println("Testing");
+		for(String iter : this.Scopes)
+		{
+			System.out.println("Symbol table " + iter);
+		}
 	}
 }
 
