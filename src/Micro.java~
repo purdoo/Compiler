@@ -13,8 +13,8 @@ public class Micro {
 		    MicroParser parser = new MicroParser(tokenStream);
 			parser.setErrorHandler(new BailErrorStrategy()); 
 			parser.program();
-						
-			//System.out.println(parser.getCurrentToken());
+			parser.ST.Print();			
+			
 			
 		}
 		catch(Exception e) 

@@ -13,7 +13,7 @@ public class Micro {
 		    MicroParser parser = new MicroParser(tokenStream);
 			parser.setErrorHandler(new BailErrorStrategy()); 
 			parser.program();
-						
+			parser.ST.Print();			
 			
 			
 		}
