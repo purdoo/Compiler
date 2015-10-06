@@ -36,7 +36,7 @@ var_decl: var_type id_list ';'
 };
 var_type: 'FLOAT' | 'INT';
 any_type: var_type | 'VOID'; 
-id_list returns [ArrayList<String> vars]: {ArrayList<String> vars = new ArrayList<String>();} id { vars.add($id.text); } (',' id {vars.add($id.text);})*;
+id_list returns [ArrayList<String> vars]: {ArrayList<String> vars = new ArrayList<String>();} id { vars.add($id.text); } (',' id {vars.add($id.text);})*; //doesnt work, breaks the entire grammar rule
 */
 
 /* Plan B? */
@@ -59,7 +59,10 @@ id_list: id (',' id)*;
 
 /* Function Paramater List */
 param_decl_list: param_decl param_decl_tail | ;
-param_decl: var_type id;
+param_decl: var_type id
+{
+	TABLE.Add($id.text, $var_type.text);
+};
 param_decl_tail: ',' param_decl param_decl_tail | ;
 
 

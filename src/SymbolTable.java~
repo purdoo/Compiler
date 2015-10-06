@@ -27,7 +27,7 @@ class SymbolTableStack
 				}
 				else
 				{
-					System.out.println("name " + S.var_name + " type " + S.var_type + " value " + S.Value);
+					System.out.println("name " + S.var_name + " type " + S.var_type);
 				}		
 			}
 			System.out.print("\n");
@@ -59,6 +59,11 @@ class SymbolTable
 		{
 			this.SYMBOLS.add(new Symbol(var, var_type));
 		}		
+	}
+
+	public void Add(String var_name, String var_type)
+	{
+		this.SYMBOLS.add(new Symbol(var_name, "STRING", val));
 	}
 
 	public void AddGlobalString(String var_name, String val)

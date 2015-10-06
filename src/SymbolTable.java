@@ -61,6 +61,11 @@ class SymbolTable
 		}		
 	}
 
+	public void Add(String var_name, String var_type)
+	{
+		this.SYMBOLS.add(new Symbol(var_name, var_type));
+	}
+
 	public void AddGlobalString(String var_name, String val)
 	{
 		this.SYMBOLS.add(new Symbol(var_name, "STRING", val));
