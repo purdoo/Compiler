@@ -16,7 +16,6 @@ public class Micro {
 			parser.STACK.AddTable(parser.TABLE);
 			parser.STACK.PrintStack();		
 			
-			
 		}
 		catch(Exception e) 
 		{

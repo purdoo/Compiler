@@ -3,12 +3,7 @@ grammar Micro;
 options {
     language = Java;
 }
-@rulecatch{
-	catch (RecognitionException e) 
-	{
-		throw e;
-	}
-}
+
 
 @members{
 	public SymbolTableStack STACK = new SymbolTableStack();
@@ -33,17 +28,33 @@ string_decl_list: string_decl+;
 str: STRINGLITERAL;
 
 /* Variable Declaration */
-
+/* Not working for some stupid reason
 var_decl_list: var_decl+;
-
 var_decl: var_type id_list ';'
 {
 	TABLE.Add($var_type.text, $id_list.vars);
 };
-
 var_type: 'FLOAT' | 'INT';
 any_type: var_type | 'VOID'; 
-id_list returns [ArrayList<String> vars]: id { vars.add($id.text); } (',' id {vars.add($id.text);})*;
+id_list returns [ArrayList<String> vars]: {ArrayList<String> vars = new ArrayList<String>();} id { vars.add($id.text); } (',' id {vars.add($id.text);})*;
+*/
+
+/* Plan B? */
+var_decl_list: var_decl+;
+var_decl: var_type id_list
+{
+	ArrayList<String> listvars = new ArrayList<String>();
+	String[] vars = $id_list.text.split(",");
+	listvars = new ArrayList<String>(Arrays.asList(vars));
+	TABLE.Add($var_type.text, listvars);
+} 
+';';
+var_type: 'FLOAT' | 'INT';
+any_type: var_type | 'VOID'; 
+id_list: id (',' id)*;
+
+
+/* End Variable Declarations */
 
 
 /* Function Paramater List */
