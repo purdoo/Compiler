@@ -19,7 +19,7 @@ public class Micro {
 		}
 		catch(Exception e) 
 		{
-			System.out.println("Not accepted");
+			System.out.println("DECLARATION ERROR n");
 		}
 	}
 }

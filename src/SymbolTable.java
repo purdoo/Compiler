@@ -16,6 +16,7 @@ class SymbolTableStack
 
 	public void PrintStack()
 	{
+		int i = 0;
 		for(SymbolTable ST : SymbolTables)
 		{
 			System.out.println("Symbol table " + ST.Scope);
@@ -30,7 +31,12 @@ class SymbolTableStack
 					System.out.println("name " + S.var_name + " type " + S.var_type);
 				}		
 			}
-			System.out.print("\n");
+			i ++;
+			if(i != SymbolTables.size())
+			{
+				System.out.print("\n");
+			}
+			
 		}
 	}
 }
@@ -54,7 +60,6 @@ class SymbolTable
 	
 	public void Add(String var_type, String[] vars)
 	{
-		System.out.println("Adding Symbols");
 		for(String var : vars)
 		{
 			this.SYMBOLS.add(new Symbol(var, var_type));
