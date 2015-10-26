@@ -108,7 +108,9 @@ public class MicroParser extends Parser {
 
 		public SymbolTableStack STACK = new SymbolTableStack();
 		public SymbolTable TABLE = new SymbolTable("GLOBAL");
-		public IRNodeList IRLIST = new IRNodeList();
+		/* Step Four */	
+		public ExprInterpreter EI = new ExprInterpreter();
+		//public IRNodeList IRLIST = new IRNodeList();
 		//public IRNode IRNODE = new IRNode();
 
 	public MicroParser(TokenStream input) {
@@ -1400,8 +1402,10 @@ public class MicroParser extends Parser {
 			setState(210);
 			((Assign_exprContext)_localctx).expr = expr();
 
-				IRNode IRNODE = new IRNode((((Assign_exprContext)_localctx).id!=null?_input.getText(((Assign_exprContext)_localctx).id.start,((Assign_exprContext)_localctx).id.stop):null), (((Assign_exprContext)_localctx).expr!=null?_input.getText(((Assign_exprContext)_localctx).expr.start,((Assign_exprContext)_localctx).expr.stop):null));
-				IRLIST.AddNode(IRNODE);
+				Expr E = new Expr((((Assign_exprContext)_localctx).id!=null?_input.getText(((Assign_exprContext)_localctx).id.start,((Assign_exprContext)_localctx).id.stop):null), (((Assign_exprContext)_localctx).expr!=null?_input.getText(((Assign_exprContext)_localctx).expr.start,((Assign_exprContext)_localctx).expr.stop):null));
+				EI.AddExpr(E);	
+				//IRNode IRNODE = new IRNode((((Assign_exprContext)_localctx).id!=null?_input.getText(((Assign_exprContext)_localctx).id.start,((Assign_exprContext)_localctx).id.stop):null), (((Assign_exprContext)_localctx).expr!=null?_input.getText(((Assign_exprContext)_localctx).expr.start,((Assign_exprContext)_localctx).expr.stop):null));
+				//IRLIST.AddNode(IRNODE);
 
 			}
 		}

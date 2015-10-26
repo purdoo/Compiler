@@ -8,7 +8,9 @@ options {
 @members{
 	public SymbolTableStack STACK = new SymbolTableStack();
 	public SymbolTable TABLE = new SymbolTable("GLOBAL");
-	public IRNodeList IRLIST = new IRNodeList();
+	/* Step Four */	
+	public ExprInterpreter EI = new ExprInterpreter EI();
+	//public IRNodeList IRLIST = new IRNodeList();
 	//public IRNode IRNODE = new IRNode();
 }
 
@@ -88,8 +90,10 @@ base_stmt: assign_stmt | read_stmt | write_stmt | return_stmt;
 assign_stmt: assign_expr ';';
 assign_expr: id ':=' expr
 {
-	IRNode IRNODE = new IRNode($id.text, $expr.text);
-	IRLIST.AddNode(IRNODE)
+	Expr E = new Expr($id.text, $expr.text);
+	EI.AddExpr(E);	
+	//IRNode IRNODE = new IRNode($id.text, $expr.text);
+	//IRLIST.AddNode(IRNODE);
 };
 read_stmt: 'READ' '(' id_list ')' ';';
 write_stmt: 'WRITE' '(' id_list ')' ';';

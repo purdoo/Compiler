@@ -85,7 +85,9 @@ public class MicroLexer extends Lexer {
 
 		public SymbolTableStack STACK = new SymbolTableStack();
 		public SymbolTable TABLE = new SymbolTable("GLOBAL");
-		public IRNodeList IRLIST = new IRNodeList();
+		/* Step Four */	
+		public ExprInterpreter EI = new ExprInterpreter();
+		//public IRNodeList IRLIST = new IRNodeList();
 		//public IRNode IRNODE = new IRNode();
 
 
