@@ -86,7 +86,6 @@ class IRNodeList
 	{
 		for(IRNode IR : this.NodeList)
 		{
-			//System.out.println(";" + IR.OpCode + " " + IR.Result);
 			IR.PrintNode();
 		}
 	}	

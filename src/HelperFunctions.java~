@@ -2,7 +2,7 @@
 
 public class HelperFunctions
 {
-	public int ExpressionType(String expr)
+	public static int ExpressionType(String expr)
 	{
 		/* return 0 for an assign expression
 		 * 
@@ -18,7 +18,7 @@ public class HelperFunctions
 		}
 	}
 
-	public int CountOccurancesOf(String s, String line)
+	public static int CountOccurancesOf(String s, String line)
 	{
 		return (line.length() - line.replace(s, "").length());
 	}
