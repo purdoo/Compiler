@@ -89,7 +89,7 @@ assign_stmt: assign_expr ';';
 assign_expr: id ':=' expr
 {
 	IRNode IRNODE = new IRNode($id.text, $expr.text);
-	IRLIST.AddNode(IRNODE);
+	IRLIST.AddNode(IRNODE)
 };
 read_stmt: 'READ' '(' id_list ')' ';';
 write_stmt: 'WRITE' '(' id_list ')' ';';

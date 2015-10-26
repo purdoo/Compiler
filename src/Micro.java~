@@ -28,7 +28,7 @@ public class Micro {
 			parser.setErrorHandler(new BailErrorStrategy()); 
 			//parser.program();
 			ParseTree ptree = parser.program();			
-			parser.IRLIST.PrintNodeList();
+			
 
 
 
