@@ -15,6 +15,13 @@ class Expr
 {
 	public String id;
 	public String expr;
+
+	public Expr(String id, String expr)
+	{
+		this.id = id;
+		this.expr = expr;
+	}
+
 	public Expr(String id, String expr)
 	{
 		this.id = id;

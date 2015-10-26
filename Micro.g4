@@ -92,11 +92,14 @@ assign_expr: id ':=' expr
 {
 	Expr E = new Expr($id.text, $expr.text);
 	EI.AddExpr(E);	
-	//IRNode IRNODE = new IRNode($id.text, $expr.text);
-	//IRLIST.AddNode(IRNODE);
 };
 read_stmt: 'READ' '(' id_list ')' ';';
-write_stmt: 'WRITE' '(' id_list ')' ';';
+write_stmt: 'WRITE' '(' id_list ')' ';'
+{
+	Expr E = new Expr("WRITE", $id_list.text);
+	EI.AddExpr(E);	
+}
+;
 return_stmt: 'RETURN' expr ';';
 
 /* Expressions */

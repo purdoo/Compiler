@@ -26,10 +26,11 @@ public class Micro {
 		    MicroParser parser = new MicroParser(tokenStream);
 			parser.setErrorHandler(new BailErrorStrategy()); 
 			parser.program();
-			IRNodeList irlist = new IRNodeList(parser.EI);
-			irlist.PrintExprList();
-			
-
+			parser.STACK.AddTable(parser.TABLE); // add last symbol table
+			IRNodeList irlist = new IRNodeList(parser.EI, parser.STACK);
+			//irlist.PrintExprList();
+			//irlist.STS.PrintStack();
+			irlist.PrintNodeList()
 
 			//ParseTree ptree = parser.program();	
 			//ParseTreeWalker walker = new ParseTreeWalker(); 

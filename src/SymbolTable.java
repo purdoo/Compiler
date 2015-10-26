@@ -4,10 +4,6 @@ class SymbolTableStack
 {
 	public static int BlockCount = 1;
 	public List<SymbolTable> SymbolTables = new ArrayList<SymbolTable>();
-	public SymbolTableStack()
-	{
-		// do I need a constructor?		
-	}
 
 	public void AddTable(SymbolTable ST)
 	{
