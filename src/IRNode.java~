@@ -8,7 +8,7 @@ class IRNodeList
 	public List<Expr> ExprList;	
 	public SymbolTableStack STS;
 
-	public int TempCounter = 0;	
+	public int TempCounter = 1;	
 
 	public IRNodeList(ExprInterpreter EI, SymbolTableStack STS)
 	{
@@ -23,9 +23,6 @@ class IRNodeList
 		{
 			if(E.id == "WRITE") // currently assuming we are only writing one var per call of WRITE(...)
 			{
-				//System.out.println("Found a write");
-				String temp = SymbolLookup(E.expr);
-				System.out.println(temp);
 				if(SymbolLookup(E.expr).equals("INT"))
 				{
 					this.NodeList.add(new IRNode("WRITEI", E.expr));
@@ -34,7 +31,24 @@ class IRNodeList
 				{
 					this.NodeList.add(new IRNode("WRITEF", E.expr));
 				}
-				
+			}
+			else // an add/sub/mult/div or assign function
+			{
+				if(HelperFunctions.ExpressionType(E.expr) == 0) // assign function
+				{
+					if(SymbolLookup(E.id).equals("INT"))
+					{
+						this.NodeList.add(new IRNode("STOREI", E.expr, "$T" + String.valueOf(this.TempCounter)));
+						this.NodeList.add(new IRNode("STOREI", "$T" + String.valueOf(this.TempCounter), E.id));						
+						this.TempCounter ++;
+					}
+					else if(SymbolLookup(E.id).equals("FLOAT"))
+					{
+						this.NodeList.add(new IRNode("STOREF", E.expr, "$T" + String.valueOf(this.TempCounter)));
+						this.NodeList.add(new IRNode("STOREF", "$T" + String.valueOf(this.TempCounter), E.id));			
+						this.TempCounter ++;
+					}
+				}
 			}
 		}
 	}
@@ -72,7 +86,8 @@ class IRNodeList
 	{
 		for(IRNode IR : this.NodeList)
 		{
-			System.out.println(";" + IR.OpCode + " " + IR.Result);
+			//System.out.println(";" + IR.OpCode + " " + IR.Result);
+			IR.PrintNode();
 		}
 	}	
 	
@@ -90,6 +105,29 @@ class IRNode
 	{
 		this.OpCode = OpCode;
 		this.Result = Result;
+	}
+
+	public IRNode(String OpCode, String OpOne, String Result)
+	{
+		this.OpCode = OpCode;
+		this.FirstOperand = OpOne;
+		this.Result = Result;
+	}
+
+	public void PrintNode()
+	{
+		if(this.FirstOperand == null && this.SecondOperand == null)
+		{
+			System.out.println(";" + this.OpCode + " " + this.Result);
+		}
+		else if(this.FirstOperand != null && this.SecondOperand == null)
+		{
+			System.out.println(";" + this.OpCode + " " + this.FirstOperand + " " + this.Result);
+		}
+		else
+		{
+			System.out.println(";" + this.OpCode + " " + this.FirstOperand + " " + this.SecondOperand + " " + this.Result);
+		}
 	}
 	
 }
