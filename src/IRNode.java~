@@ -62,16 +62,7 @@ class IRNodeList
 							{
 								while(HelperFunctions.CountOccurancesOf('*', builder) > 0 || HelperFunctions.CountOccurancesOf('/', builder) > 0)
 								{
-									//builder = HelperFunctions.ReduceOne(builder, this.TempCounter);
-									for (int i = 0; i < builder.length(); i++)
-									{
-										char c = builder.charAt(i);
-										if(c == '*' || c == '/')
-										{
-											builder.delete(i-1, i+2);
-											builder.insert(i-1, "$T"+String.valueOf(TempCounter));
-										}
-									}									
+									//builder = HelperFunctions.ReduceOne(builder, this.TempCounter);								
 									//System.out.println(builder);
 									this.TempCounter ++;
 								}
@@ -86,15 +77,89 @@ class IRNodeList
 						}
 						else if(HelperFunctions.CountOccurancesOf("(", expr) == 1)
 						{
-							//System.out.println(expr + "one paren");
-
 							// Parenthesis Reduction(s) First
 							StringBuilder builder = new StringBuilder(expr);
 							int open = builder.indexOf("(");
 							int close = builder.indexOf(")");
-							StringBuilder subBuilder = new StringBuilder(builder.substring(open+!,close));
-							System.out.println(subBuilder);
+							StringBuilder subBuilder = new StringBuilder(builder.substring(open+1,close));
+							//System.out.println(subBuilder);
+							// Now simplify the subBuilder (stuff between parenthesis) to a single register							
+														
+							while(HelperFunctions.ExpressionType(subBuilder) != 0) // while expression still has +-*/ in it
+							{
+								int multOp = subBuilder.indexOf("*");
+								int divOp = subBuilder.indexOf("/");
+								if(multOp != -1 && divOp == -1)
+								{
+									int i = multOp;
+									if(Character.isLetter(subBuilder.charAt(i-1)))
+									{
+										this.NodeList.add(new IRNode("MULTI", subBuilder.substring(i-1, i), subBuilder.substring(i+1, i+2), "$T" + String.valueOf(this.TempCounter)));
+										subBuilder.delete(i-1, i+2);
+										subBuilder.insert(i-1, "$T"+String.valueOf(this.TempCounter));
+										this.TempCounter ++;
+									}
+									else
+									{
+										if(this.TempCounter < 10)
+										{
+											subBuilder.delete(i-3, i+2);
+											subBuilder.insert(i-3, "$T"+String.valueOf(this.TempCounter));
+										}
+										else
+										{
+											subBuilder.delete(i-4, i+2);
+											subBuilder.insert(i-4, "$T"+String.valueOf(this.TempCounter));
+										}
+									}
+									//System.out.println(subBuilder);
+								}
+								else if(multOp == -1 && divOp != -1)
+								{
+								}
+								else if(multOp != -1 && divOp != -1)
+								{
+
+								}
+								else // at this point, we have no more *'s or /'s
+								{
+									int addOp = subBuilder.indexOf("+");
+									int subOp = subBuilder.indexOf("-");
+									if(addOp != -1 && subOp == -1)
+									{
+										int i = addOp;
+										if(Character.isLetter(subBuilder.charAt(i-1)))
+										{
+											this.NodeList.add(new IRNode("ADDI", subBuilder.substring(i-1, i), subBuilder.substring(i+1, i+2), "$T" + String.valueOf(this.TempCounter)));
+											subBuilder.delete(i-1, i+2);
+											subBuilder.insert(i-1, "$T"+String.valueOf(this.TempCounter));
+											this.TempCounter ++;
+										}
+										else
+										{
+											if(this.TempCounter < 10)
+											{
+												this.NodeList.add(new IRNode("ADDI", subBuilder.substring(i-3, i), subBuilder.substring(i+1, i+2), "$T" + String.valueOf(this.TempCounter)));
+												subBuilder.delete(i-3, i+2);
+												subBuilder.insert(i-3, "$T"+String.valueOf(this.TempCounter));
+												this.TempCounter ++;
+											}
+											else
+											{
+												this.NodeList.add(new IRNode("ADDI", subBuilder.substring(i-4, i), subBuilder.substring(i+1, i+2), "$T" + String.valueOf(this.TempCounter)));
+												subBuilder.delete(i-4, i+2);
+												subBuilder.insert(i-4, "$T"+String.valueOf(this.TempCounter));
+												this.TempCounter ++;
+											}
+										}
+										//System.out.println(subBuilder);
+									}
+								}
+							} // endof while(HelperFunctions.ExpressionType(subBuilder) != 0)
+							builder.replace(open, close+1, subBuilder.toString());
+							System.out.println(builder);
 						}
+
 						else if(HelperFunctions.CountOccurancesOf("(", expr) > 1)
 						{
 							//System.out.println(expr + "multiple paren");
@@ -106,6 +171,14 @@ class IRNodeList
 		}
 	}
 	
+
+	public String Reduce(StringBuilder builder, int order)
+	{
+
+	}
+
+
+
 	/* Given a symbol (variable) name, look at the symbol table to determine its type */
 	public String SymbolLookup(String SymbolName)
 	{
@@ -161,6 +234,14 @@ class IRNode
 	{
 		this.OpCode = OpCode;
 		this.FirstOperand = OpOne;
+		this.Result = Result;
+	}
+
+	public IRNode(String OpCode, String OpOne, String OpTwo, String Result)
+	{
+		this.OpCode = OpCode;
+		this.FirstOperand = OpOne;
+		this.SecondOperand = OpTwo;
 		this.Result = Result;
 	}
 
