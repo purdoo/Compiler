@@ -31,14 +31,7 @@ public class Micro {
 			//irlist.PrintExprList();
 			//irlist.STS.PrintStack();
 			irlist.PrintNodeList();
-
-			//ParseTree ptree = parser.program();	
-			//ParseTreeWalker walker = new ParseTreeWalker(); 
-		    //ExtractInterfaceListener extractor = new ExtractInterfaceListener(parser);
-			//IRExtractor IRE = new IRExtractor(parser.symbolTree);
-		    //walker.walk(listener, ptree); // initiate walk of tree with listener
-			//parser.STACK.AddTable(parser.TABLE);
-			//parser.STACK.PrintStack();		
+	
 			
 		}
 		catch(Exception e) 

@@ -49,6 +49,59 @@ class IRNodeList
 						this.TempCounter ++;
 					}
 				}
+				else // a line of expression(s)
+				{
+					if(SymbolLookup(E.id).equals("INT"))
+					{
+						String expr = E.expr.replaceAll("\\s","");
+						if(HelperFunctions.CountOccurancesOf("(", expr) == 0)
+						{
+							/*
+							StringBuilder builder = new StringBuilder(expr);
+							while(HelperFunctions.ExpressionType(builder) != 0)	
+							{
+								while(HelperFunctions.CountOccurancesOf('*', builder) > 0 || HelperFunctions.CountOccurancesOf('/', builder) > 0)
+								{
+									//builder = HelperFunctions.ReduceOne(builder, this.TempCounter);
+									for (int i = 0; i < builder.length(); i++)
+									{
+										char c = builder.charAt(i);
+										if(c == '*' || c == '/')
+										{
+											builder.delete(i-1, i+2);
+											builder.insert(i-1, "$T"+String.valueOf(TempCounter));
+										}
+									}									
+									//System.out.println(builder);
+									this.TempCounter ++;
+								}
+								while(HelperFunctions.CountOccurancesOf('+', builder) > 0 || HelperFunctions.CountOccurancesOf('-', builder) > 0)
+								{
+									builder = HelperFunctions.ReduceTwo(builder, this.TempCounter);
+									//System.out.println(builder);
+									this.TempCounter ++;
+								}
+							}	
+							*/
+						}
+						else if(HelperFunctions.CountOccurancesOf("(", expr) == 1)
+						{
+							//System.out.println(expr + "one paren");
+
+							// Parenthesis Reduction(s) First
+							StringBuilder builder = new StringBuilder(expr);
+							int open = builder.indexOf("(");
+							int close = builder.indexOf(")");
+							StringBuilder subBuilder = new StringBuilder(builder.substring(open+!,close));
+							System.out.println(subBuilder);
+						}
+						else if(HelperFunctions.CountOccurancesOf("(", expr) > 1)
+						{
+							//System.out.println(expr + "multiple paren");
+						}
+					}
+					
+				}
 			}
 		}
 	}
@@ -86,12 +139,9 @@ class IRNodeList
 	{
 		for(IRNode IR : this.NodeList)
 		{
-			//System.out.println(";" + IR.OpCode + " " + IR.Result);
 			IR.PrintNode();
 		}
 	}	
-	
-
 }
 
 class IRNode
