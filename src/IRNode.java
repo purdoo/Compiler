@@ -56,24 +56,7 @@ class IRNodeList
 						String expr = E.expr.replaceAll("\\s","");
 						if(HelperFunctions.CountOccurancesOf("(", expr) == 0)
 						{
-							/*
-							StringBuilder builder = new StringBuilder(expr);
-							while(HelperFunctions.ExpressionType(builder) != 0)	
-							{
-								while(HelperFunctions.CountOccurancesOf('*', builder) > 0 || HelperFunctions.CountOccurancesOf('/', builder) > 0)
-								{
-									//builder = HelperFunctions.ReduceOne(builder, this.TempCounter);								
-									//System.out.println(builder);
-									this.TempCounter ++;
-								}
-								while(HelperFunctions.CountOccurancesOf('+', builder) > 0 || HelperFunctions.CountOccurancesOf('-', builder) > 0)
-								{
-									builder = HelperFunctions.ReduceTwo(builder, this.TempCounter);
-									//System.out.println(builder);
-									this.TempCounter ++;
-								}
-							}	
-							*/
+
 						}
 						else if(HelperFunctions.CountOccurancesOf("(", expr) == 1)
 						{
@@ -84,79 +67,8 @@ class IRNodeList
 							StringBuilder subBuilder = new StringBuilder(builder.substring(open+1,close));
 							//System.out.println(subBuilder);
 							// Now simplify the subBuilder (stuff between parenthesis) to a single register							
-														
-							while(HelperFunctions.ExpressionType(subBuilder) != 0) // while expression still has +-*/ in it
-							{
-								int multOp = subBuilder.indexOf("*");
-								int divOp = subBuilder.indexOf("/");
-								if(multOp != -1 && divOp == -1)
-								{
-									int i = multOp;
-									if(Character.isLetter(subBuilder.charAt(i-1)))
-									{
-										this.NodeList.add(new IRNode("MULTI", subBuilder.substring(i-1, i), subBuilder.substring(i+1, i+2), "$T" + String.valueOf(this.TempCounter)));
-										subBuilder.delete(i-1, i+2);
-										subBuilder.insert(i-1, "$T"+String.valueOf(this.TempCounter));
-										this.TempCounter ++;
-									}
-									else
-									{
-										if(this.TempCounter < 10)
-										{
-											subBuilder.delete(i-3, i+2);
-											subBuilder.insert(i-3, "$T"+String.valueOf(this.TempCounter));
-										}
-										else
-										{
-											subBuilder.delete(i-4, i+2);
-											subBuilder.insert(i-4, "$T"+String.valueOf(this.TempCounter));
-										}
-									}
-									//System.out.println(subBuilder);
-								}
-								else if(multOp == -1 && divOp != -1)
-								{
-								}
-								else if(multOp != -1 && divOp != -1)
-								{
-
-								}
-								else // at this point, we have no more *'s or /'s
-								{
-									int addOp = subBuilder.indexOf("+");
-									int subOp = subBuilder.indexOf("-");
-									if(addOp != -1 && subOp == -1)
-									{
-										int i = addOp;
-										if(Character.isLetter(subBuilder.charAt(i-1)))
-										{
-											this.NodeList.add(new IRNode("ADDI", subBuilder.substring(i-1, i), subBuilder.substring(i+1, i+2), "$T" + String.valueOf(this.TempCounter)));
-											subBuilder.delete(i-1, i+2);
-											subBuilder.insert(i-1, "$T"+String.valueOf(this.TempCounter));
-											this.TempCounter ++;
-										}
-										else
-										{
-											if(this.TempCounter < 10)
-											{
-												this.NodeList.add(new IRNode("ADDI", subBuilder.substring(i-3, i), subBuilder.substring(i+1, i+2), "$T" + String.valueOf(this.TempCounter)));
-												subBuilder.delete(i-3, i+2);
-												subBuilder.insert(i-3, "$T"+String.valueOf(this.TempCounter));
-												this.TempCounter ++;
-											}
-											else
-											{
-												this.NodeList.add(new IRNode("ADDI", subBuilder.substring(i-4, i), subBuilder.substring(i+1, i+2), "$T" + String.valueOf(this.TempCounter)));
-												subBuilder.delete(i-4, i+2);
-												subBuilder.insert(i-4, "$T"+String.valueOf(this.TempCounter));
-												this.TempCounter ++;
-											}
-										}
-										//System.out.println(subBuilder);
-									}
-								}
-							} // endof while(HelperFunctions.ExpressionType(subBuilder) != 0)
-							builder.replace(open, close+1, subBuilder.toString());
+							String reduced = Reduce(subBuilder, 1);
+							builder.replace(open, close+1, reduced);
 							System.out.println(builder);
 						}
 
@@ -172,12 +84,75 @@ class IRNodeList
 	}
 	
 
-	public String Reduce(StringBuilder builder, int order)
+	public String Reduce(StringBuilder subBuilder, int order)
 	{
+		while(HelperFunctions.ExpressionType(subBuilder) != 0) // while expression still has an op in it
+		{
+			System.out.println("Starting");
+			int multOp = subBuilder.indexOf("*");
+			int divOp = subBuilder.indexOf("/");
+			if(multOp != -1 && divOp == -1)
+			{
+				System.out.println("Entering");
+				int i = multOp;
+				int left = CheckLeftExpression(subBuilder, i);
+				int right = CheckRightExpression(subBuilder, i);
+				System.out.println(left + " " + right);
+				this.NodeList.add(new IRNode("MULTI", subBuilder.substring(i-left, i), subBuilder.substring(i+1, i+right), "$T" + String.valueOf(this.TempCounter)));
+				subBuilder.delete(i-left, i+right);
+				subBuilder.insert(i-left, "$T"+String.valueOf(this.TempCounter));
+				this.TempCounter ++;
+			}
+			else if(multOp == -1 && divOp != -1)
+			{
+			}
+			else if(multOp != -1 && divOp != -1)
+			{
 
+			}
+			else // at this point, we have no more *'s or /'s
+			{
+				int addOp = subBuilder.indexOf("+");
+				int subOp = subBuilder.indexOf("-");
+				if(addOp != -1 && subOp == -1)
+				{
+					int i = addOp;
+					int left = CheckLeftExpression(subBuilder, i);
+					int right = CheckRightExpression(subBuilder, i);
+					//System.out.println(left + " " + right);
+					this.NodeList.add(new IRNode("ADDI", subBuilder.substring(i-left, i), subBuilder.substring(i+1, i+right), "$T" + String.valueOf(this.TempCounter)));
+					subBuilder.delete(i-left, i+right);
+					subBuilder.insert(i-left, "$T"+String.valueOf(this.TempCounter));
+					this.TempCounter ++;
+				}
+			}
+		}
+		return subBuilder.toString();
 	}
 
+	public int CheckLeftExpression(StringBuilder sb, int index)
+	{
+		int i = index - 1;
+		int offset = 1;
+		while(sb.charAt(i) != '+' && sb.charAt(i) != '-' && sb.charAt(i) != '*' && sb.charAt(i) != '/' && i != 0 )
+		{
+			i --;
+			offset ++;
+		}
+		return offset;
+	}
 
+	public int CheckRightExpression(StringBuilder sb, int index)
+	{
+		int i = index + 1;
+		int offset = 1;
+		while(sb.charAt(i) != '+' && sb.charAt(i) != '-' && sb.charAt(i) != '*' && sb.charAt(i) != '/' && i != sb.length())
+		{
+			i ++;
+			offset ++;
+		}
+		return offset;
+	}
 
 	/* Given a symbol (variable) name, look at the symbol table to determine its type */
 	public String SymbolLookup(String SymbolName)
