@@ -75,26 +75,29 @@ class IRNodeList
 							builder.replace(open, close+1, reduced);
 							//System.out.println(builder);
 							/* Reduce again for the rest of the equation now that the parenthesis are gone */
-							//reduced = Reduce(builder, 1);
-							//this.NodeList.add(new IRNode("STOREI", E.expr, "$T" + String.valueOf(this.TempCounter)));
+							reduced = Reduce(builder, 1);
+							this.NodeList.add(new IRNode("STOREI", reduced, "$T" + String.valueOf(this.TempCounter)));
 						}
 						else if(HelperFunctions.CountOccurancesOf("(", expr) > 1)
 						{
 							System.out.println(expr + "multiple paren");
 						}
 					}
+					else if(SymbolLookup(E.id).equals("FLOAT"))
+					{
+						System.out.println("FLOAT FOUND, ABORT ABORT ABORT!");
+					}
 					
 				}
 			}
 		}
 	}
-	
 
 	public String Reduce(StringBuilder subBuilder, int order)
 	{
 		while(HelperFunctions.ExpressionType(subBuilder) != 0) // while expression still has an op in it
 		{
-			System.out.println("Starting");
+			System.out.println("Reducing: " + subBuilder);
 			int multOp = subBuilder.indexOf("*");
 			int divOp = subBuilder.indexOf("/");
 			if(multOp != -1 && divOp == -1)
@@ -111,10 +114,32 @@ class IRNodeList
 			}
 			else if(multOp == -1 && divOp != -1)
 			{
+				int i = divOp;
+				int left = CheckLeftExpression(subBuilder, i);
+				int right = CheckRightExpression(subBuilder, i);
+				//System.out.println(left + " " + right);
+				this.NodeList.add(new IRNode("DIVI", subBuilder.substring(i-left, i), subBuilder.substring(i+1, i+right), "$T" + String.valueOf(this.TempCounter)));
+				subBuilder.delete(i-left, i+right);
+				subBuilder.insert(i-left, "$T"+String.valueOf(this.TempCounter));
+				this.TempCounter ++;
 			}
 			else if(multOp != -1 && divOp != -1)
 			{
-
+				int i = (multOp < divOp) ? multOp : divOp;
+				int left = CheckLeftExpression(subBuilder, i);
+				int right = CheckRightExpression(subBuilder, i);
+				//System.out.println(left + " " + right);
+				if(multOp < divOp)
+				{
+					this.NodeList.add(new IRNode("MULTI", subBuilder.substring(i-left, i), subBuilder.substring(i+1, i+right), "$T" + String.valueOf(this.TempCounter)));
+				}
+				else
+				{
+					this.NodeList.add(new IRNode("DIVI", subBuilder.substring(i-left, i), subBuilder.substring(i+1, i+right), "$T" + String.valueOf(this.TempCounter)));
+				}
+				subBuilder.delete(i-left, i+right);
+				subBuilder.insert(i-left, "$T"+String.valueOf(this.TempCounter));
+				this.TempCounter ++;
 			}
 			else // at this point, we have no more *'s or /'s
 			{
@@ -122,13 +147,42 @@ class IRNodeList
 				int subOp = subBuilder.indexOf("-");
 				if(addOp != -1 && subOp == -1)
 				{
-					System.out.println("Entering 2:" + subBuilder);
+					//System.out.println("Entering 2:" + subBuilder);
 					int i = addOp;
 					int left = CheckLeftExpression(subBuilder, i);
 					//System.out.println("Left " + left);
 					int right = CheckRightExpression(subBuilder, i);
-					System.out.println(left + " " + right);
+					//System.out.println(left + " " + right);
 					this.NodeList.add(new IRNode("ADDI", subBuilder.substring(i-left, i), subBuilder.substring(i+1, i+right), "$T" + String.valueOf(this.TempCounter)));
+					subBuilder.delete(i-left, i+right);
+					subBuilder.insert(i-left, "$T"+String.valueOf(this.TempCounter));
+					this.TempCounter ++;
+				}
+				else if(addOp == -1 && subOp != -1)
+				{
+					int i = subOp;
+					int left = CheckLeftExpression(subBuilder, i);
+					int right = CheckRightExpression(subBuilder, i);
+					//System.out.println(left + " " + right);
+					this.NodeList.add(new IRNode("SUBI", subBuilder.substring(i-left, i), subBuilder.substring(i+1, i+right), "$T" + String.valueOf(this.TempCounter)));
+					subBuilder.delete(i-left, i+right);
+					subBuilder.insert(i-left, "$T"+String.valueOf(this.TempCounter));
+					this.TempCounter ++;
+				}
+				else if(addOp != -1 && subOp != -1)
+				{
+					int i = (addOp < subOp) ? addOp : subOp;
+					int left = CheckLeftExpression(subBuilder, i);
+					int right = CheckRightExpression(subBuilder, i);
+					//System.out.println(left + " " + right);
+					if(addOp < subOp)
+					{
+						this.NodeList.add(new IRNode("ADDI", subBuilder.substring(i-left, i), subBuilder.substring(i+1, i+right), "$T" + String.valueOf(this.TempCounter)));
+					}
+					else
+					{
+						this.NodeList.add(new IRNode("SUBI", subBuilder.substring(i-left, i), subBuilder.substring(i+1, i+right), "$T" + String.valueOf(this.TempCounter)));
+					}
 					subBuilder.delete(i-left, i+right);
 					subBuilder.insert(i-left, "$T"+String.valueOf(this.TempCounter));
 					this.TempCounter ++;
@@ -142,12 +196,26 @@ class IRNodeList
 	{
 		//System.out.println("Entering Left:" + sb);
 		int i = index - 1;
-		int offset = 1;
+		int offset = 0;
+		while(sb.charAt(i) != '+' && sb.charAt(i) != '-' && sb.charAt(i) != '*' && sb.charAt(i) != '/')
+		{
+			if(i == 0)
+			{
+				return offset + 1;
+			}
+			i --;
+			offset ++;
+		} 
+		/*
+		if(index == 1)
+		{
+			return 1;
+		}
 		while(sb.charAt(i) != '+' && sb.charAt(i) != '-' && sb.charAt(i) != '*' && sb.charAt(i) != '/' && i != 0 )
 		{
 			i --;
 			offset ++;
-		}
+		}*/
 		return offset;
 	}
 
