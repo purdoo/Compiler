@@ -39,7 +39,7 @@ class IRNodeList
 					if(SymbolLookup(E.id).equals("INT"))
 					{
 						this.NodeList.add(new IRNode("STOREI", E.expr, "$T" + String.valueOf(this.TempCounter)));
-						this.NodeList.add(new IRNode("STOREI", "$T" + String.valueOf(this.TempCounter), E.id));						
+						this.NodeList.add(new IRNode("STOREI", "$T" + String.valueOf(this.TempCounter), E.id));
 						this.TempCounter ++;
 					}
 					else if(SymbolLookup(E.id).equals("FLOAT"))
@@ -53,10 +53,14 @@ class IRNodeList
 				{
 					if(SymbolLookup(E.id).equals("INT"))
 					{
+						
 						String expr = E.expr.replaceAll("\\s","");
 						if(HelperFunctions.CountOccurancesOf("(", expr) == 0)
 						{
-
+							StringBuilder builder = new StringBuilder(expr);
+							System.out.println("No Parenthesis: " + builder);
+							String reduced = Reduce(builder, 1);
+							System.out.println(reduced);
 						}
 						else if(HelperFunctions.CountOccurancesOf("(", expr) == 1)
 						{

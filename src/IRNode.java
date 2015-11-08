@@ -53,10 +53,14 @@ class IRNodeList
 				{
 					if(SymbolLookup(E.id).equals("INT"))
 					{
+						
 						String expr = E.expr.replaceAll("\\s","");
 						if(HelperFunctions.CountOccurancesOf("(", expr) == 0)
 						{
-
+							StringBuilder builder = new StringBuilder(expr);
+							System.out.println("No Parenthesis: " + builder);
+							String reduced = Reduce(builder, 1);
+							System.out.println(reduced);
 						}
 						else if(HelperFunctions.CountOccurancesOf("(", expr) == 1)
 						{
@@ -74,7 +78,7 @@ class IRNodeList
 
 						else if(HelperFunctions.CountOccurancesOf("(", expr) > 1)
 						{
-							//System.out.println(expr + "multiple paren");
+							System.out.println(expr + "multiple paren");
 						}
 					}
 					
