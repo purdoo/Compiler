@@ -39,7 +39,7 @@ class IRNodeList
 					if(SymbolLookup(E.id).equals("INT"))
 					{
 						this.NodeList.add(new IRNode("STOREI", E.expr, "$T" + String.valueOf(this.TempCounter)));
-						this.NodeList.add(new IRNode("STOREI", "$T" + String.valueOf(this.TempCounter), E.id));						
+						this.NodeList.add(new IRNode("STOREI", "$T" + String.valueOf(this.TempCounter), E.id));
 						this.TempCounter ++;
 					}
 					else if(SymbolLookup(E.id).equals("FLOAT"))
@@ -93,11 +93,11 @@ class IRNodeList
 			int divOp = subBuilder.indexOf("/");
 			if(multOp != -1 && divOp == -1)
 			{
-				System.out.println("Entering");
+				//System.out.println("Entering:" + subBuilder);
 				int i = multOp;
 				int left = CheckLeftExpression(subBuilder, i);
 				int right = CheckRightExpression(subBuilder, i);
-				System.out.println(left + " " + right);
+				//System.out.println(left + " " + right);
 				this.NodeList.add(new IRNode("MULTI", subBuilder.substring(i-left, i), subBuilder.substring(i+1, i+right), "$T" + String.valueOf(this.TempCounter)));
 				subBuilder.delete(i-left, i+right);
 				subBuilder.insert(i-left, "$T"+String.valueOf(this.TempCounter));
@@ -116,10 +116,12 @@ class IRNodeList
 				int subOp = subBuilder.indexOf("-");
 				if(addOp != -1 && subOp == -1)
 				{
+					System.out.println("Entering 2:" + subBuilder);
 					int i = addOp;
 					int left = CheckLeftExpression(subBuilder, i);
+					//System.out.println("Left " + left);
 					int right = CheckRightExpression(subBuilder, i);
-					//System.out.println(left + " " + right);
+					System.out.println(left + " " + right);
 					this.NodeList.add(new IRNode("ADDI", subBuilder.substring(i-left, i), subBuilder.substring(i+1, i+right), "$T" + String.valueOf(this.TempCounter)));
 					subBuilder.delete(i-left, i+right);
 					subBuilder.insert(i-left, "$T"+String.valueOf(this.TempCounter));
@@ -132,6 +134,7 @@ class IRNodeList
 
 	public int CheckLeftExpression(StringBuilder sb, int index)
 	{
+		//System.out.println("Entering Left:" + sb);
 		int i = index - 1;
 		int offset = 1;
 		while(sb.charAt(i) != '+' && sb.charAt(i) != '-' && sb.charAt(i) != '*' && sb.charAt(i) != '/' && i != 0 )
@@ -146,7 +149,9 @@ class IRNodeList
 	{
 		int i = index + 1;
 		int offset = 1;
-		while(sb.charAt(i) != '+' && sb.charAt(i) != '-' && sb.charAt(i) != '*' && sb.charAt(i) != '/' && i != sb.length())
+		System.out.println("Entering Right:" + sb);
+		System.out.println("Starting i:" + i);
+		while(i != sb.length() && sb.charAt(i) != '+' && sb.charAt(i) != '-' && sb.charAt(i) != '*' && sb.charAt(i) != '/')
 		{
 			i ++;
 			offset ++;
