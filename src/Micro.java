@@ -20,10 +20,10 @@ public class Micro {
     {
 		try
 		{
-		    CharStream inStream = new ANTLRFileStream(args[0]);
+			CharStream inStream = new ANTLRFileStream(args[0]);
 			MicroLexer lexer = new MicroLexer(inStream);
 			TokenStream tokenStream = new CommonTokenStream(lexer);
-		    MicroParser parser = new MicroParser(tokenStream);
+			MicroParser parser = new MicroParser(tokenStream);
 			parser.setErrorHandler(new BailErrorStrategy()); 
 			parser.program();
 			parser.STACK.AddTable(parser.TABLE); // add last symbol table

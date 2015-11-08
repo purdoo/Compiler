@@ -45,7 +45,7 @@ class IRNodeList
 					else if(SymbolLookup(E.id).equals("FLOAT"))
 					{
 						this.NodeList.add(new IRNode("STOREF", E.expr, "$T" + String.valueOf(this.TempCounter)));
-						this.NodeList.add(new IRNode("STOREF", "$T" + String.valueOf(this.TempCounter), E.id));			
+						this.NodeList.add(new IRNode("STOREF", "$T" + String.valueOf(this.TempCounter), E.id));
 						this.TempCounter ++;
 					}
 				}
@@ -53,7 +53,6 @@ class IRNodeList
 				{
 					if(SymbolLookup(E.id).equals("INT"))
 					{
-						
 						String expr = E.expr.replaceAll("\\s","");
 						if(HelperFunctions.CountOccurancesOf("(", expr) == 0)
 						{
@@ -61,6 +60,7 @@ class IRNodeList
 							System.out.println("No Parenthesis: " + builder);
 							String reduced = Reduce(builder, 1);
 							System.out.println(reduced);
+							this.NodeList.add(new IRNode("STOREI", reduced, E.id));
 						}
 						else if(HelperFunctions.CountOccurancesOf("(", expr) == 1)
 						{
@@ -70,12 +70,14 @@ class IRNodeList
 							int close = builder.indexOf(")");
 							StringBuilder subBuilder = new StringBuilder(builder.substring(open+1,close));
 							//System.out.println(subBuilder);
-							// Now simplify the subBuilder (stuff between parenthesis) to a single register							
+							// Now simplify the subBuilder (stuff between parenthesis) to a single register
 							String reduced = Reduce(subBuilder, 1);
 							builder.replace(open, close+1, reduced);
-							System.out.println(builder);
+							//System.out.println(builder);
+							/* Reduce again for the rest of the equation now that the parenthesis are gone */
+							//reduced = Reduce(builder, 1);
+							//this.NodeList.add(new IRNode("STOREI", E.expr, "$T" + String.valueOf(this.TempCounter)));
 						}
-
 						else if(HelperFunctions.CountOccurancesOf("(", expr) > 1)
 						{
 							System.out.println(expr + "multiple paren");
