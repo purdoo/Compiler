@@ -96,16 +96,58 @@ public class TinyNodeList
 				this.AddTinyNode("move " + this.CheckReg(irn.FirstOperand) + " " + this.CheckReg(irn.Result));
 				this.AddTinyNode("divi " + this.CheckReg(irn.SecondOperand) + " " + this.CheckReg(irn.Result));
 			}
+			else if(irn.OpCode == "ADDF")
+			{
+				this.AddTinyNode("move " + this.CheckReg(irn.FirstOperand) + " " + this.CheckReg(irn.Result));
+				this.AddTinyNode("addr " + this.CheckReg(irn.SecondOperand) + " " + this.CheckReg(irn.Result));
+			}
+			else if(irn.OpCode == "SUBF")
+			{
+				this.AddTinyNode("move " + this.CheckReg(irn.FirstOperand) + " " + this.CheckReg(irn.Result));
+				this.AddTinyNode("subr " + this.CheckReg(irn.SecondOperand) + " " + this.CheckReg(irn.Result));
+			}
+			else if(irn.OpCode == "MULTF")
+			{
+				this.AddTinyNode("move " + this.CheckReg(irn.FirstOperand) + " " + this.CheckReg(irn.Result));
+				this.AddTinyNode("mulr " + this.CheckReg(irn.SecondOperand) + " " + this.CheckReg(irn.Result));
+			}
+			else if(irn.OpCode == "DIVF")
+			{
+				this.AddTinyNode("move " + this.CheckReg(irn.FirstOperand) + " " + this.CheckReg(irn.Result));
+				this.AddTinyNode("divr " + this.CheckReg(irn.SecondOperand) + " " + this.CheckReg(irn.Result));
+			}
 			else if(irn.OpCode == "STOREI")
 			{
 				this.AddTinyNode("move " + this.CheckReg(irn.FirstOperand) + " " + this.CheckReg(irn.Result));
+			}
+			else if(irn.OpCode == "STOREF")
+			{
+				this.AddTinyNode("move " + this.CheckReg(irn.FirstOperand) + " " + this.CheckReg(irn.Result));
+			}
+			else if(irn.OpCode == "READI")
+			{
+				this.AddTinyNode("sys readi " + irn.Result);
+			}
+			else if(irn.OpCode == "READF")
+			{
+				this.AddTinyNode("sys readr " + irn.Result);
 			}
 			else if(irn.OpCode == "WRITEI")
 			{
 				this.AddTinyNode("sys writei " + irn.Result);
 			}
+			else if(irn.OpCode == "WRITEF")
+			{
+				this.AddTinyNode("sys writer " + irn.Result);
+			}
+
+
+			else
+			{
+				System.out.println();
+			}
 		}
-		this.AddTinyNode();
+		this.AddTinyNode("sys halt");
 	}
 
 	public void PrintNodes()
