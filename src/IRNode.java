@@ -98,7 +98,48 @@ class IRNodeList
 					}
 					else if(SymbolLookup(E.id).equals("FLOAT"))
 					{
-						System.out.println("FLOAT FOUND, ABORT ABORT ABORT!");
+						//System.out.println("FLOAT FOUND, ABORT ABORT ABORT!");
+						String expr = E.expr.replaceAll("\\s","");
+						if(HelperFunctions.CountOccurancesOf("(", expr) == 0)
+						{
+							StringBuilder builder = new StringBuilder(expr);
+							//System.out.println("No Parenthesis: " + builder);
+							String reduced = ReduceF(builder);
+							this.NodeList.add(new IRNode("STOREF", reduced, E.id));
+						}
+						else if(HelperFunctions.CountOccurancesOf("(", expr) == 1)
+						{
+							// Parenthesis Reduction(s) First
+							StringBuilder builder = new StringBuilder(expr);
+							int open = builder.indexOf("(");
+							int close = builder.indexOf(")");
+							StringBuilder subBuilder = new StringBuilder(builder.substring(open+1,close));
+							//System.out.println(subBuilder);
+							// Now simplify the subBuilder (stuff between parenthesis) to a single register
+							String reduced = ReduceF(subBuilder);
+							builder.replace(open, close+1, reduced);
+							//System.out.println(builder);
+							/* Reduce again for the rest of the equation now that the parenthesis are gone */
+							reduced = ReduceF(builder);
+							this.NodeList.add(new IRNode("STOREF", reduced, E.id));
+						}
+						else if(HelperFunctions.CountOccurancesOf("(", expr) > 1)
+						{
+							//System.out.println(expr + "multiple paren");
+							String reduced;
+							StringBuilder builder = new StringBuilder(expr);
+							while(HelperFunctions.CountOccurancesOf('(', builder) != 0)
+							{
+								int open = builder.indexOf("(");
+								int close = builder.indexOf(")");
+								StringBuilder subBuilder = new StringBuilder(builder.substring(open+1,close));
+								//System.out.println(subBuilder);
+								reduced = ReduceF(subBuilder);
+								builder.replace(open, close+1, reduced);
+							}
+							reduced = ReduceF(builder);
+							this.NodeList.add(new IRNode("STOREF", reduced, E.id));
+						}
 					}
 					
 				}
@@ -355,6 +396,265 @@ class IRNodeList
 					else
 					{
 						this.NodeList.add(new IRNode("SUBI", subBuilder.substring(i-left, i), subBuilder.substring(i+1, i+right), "$T" + String.valueOf(this.TempCounter)));
+					}
+					subBuilder.delete(i-left, i+right);
+					subBuilder.insert(i-left, "$T"+String.valueOf(this.TempCounter));
+					this.TempCounter ++;
+				}
+			}
+		}
+		return subBuilder.toString();
+	}
+
+	public String ReduceF(StringBuilder subBuilder)
+	{
+		while(HelperFunctions.ExpressionType(subBuilder) != 0) // while expression still has an op in it
+		{
+			//System.out.println("ReducingF: " + subBuilder);
+			int multOp = subBuilder.indexOf("*");
+			int divOp = subBuilder.indexOf("/");
+			if(multOp != -1 && divOp == -1)
+			{
+				int i = multOp;
+				int left = CheckLeftExpression(subBuilder, i);
+				if(HelperFunctions.IsFloat(subBuilder.substring(i-left, i).toString()))
+				{
+					this.NodeList.add(new IRNode("STOREF", subBuilder.substring(i-left, i), "$T" + String.valueOf(this.TempCounter)));
+					subBuilder.delete(i-left, i);
+					subBuilder.insert(i-left, "$T" + String.valueOf(this.TempCounter));
+					if(this.TempCounter < 10)
+					{
+						i += 2;
+					}
+					else if(this.TempCounter < 100)
+					{
+						i += 3;
+					}
+					else if(this.TempCounter < 1000)
+					{
+						i += 4;
+					}
+					this.TempCounter ++;
+					left = CheckLeftExpression(subBuilder, i);
+				}
+				int right = CheckRightExpression(subBuilder, i);
+				if(HelperFunctions.IsFloat(subBuilder.substring(i+1, i+right).toString()))
+				{
+					this.NodeList.add(new IRNode("STOREF", subBuilder.substring(i+1, i+right), "$T" + String.valueOf(this.TempCounter)));
+					subBuilder.delete(i+1, i+right);
+					subBuilder.insert(i+1, "$T" + String.valueOf(this.TempCounter));
+					this.TempCounter ++;
+					right = CheckRightExpression(subBuilder, i);
+				}
+				this.NodeList.add(new IRNode("MULTF", subBuilder.substring(i-left, i), subBuilder.substring(i+1, i+right), "$T" + String.valueOf(this.TempCounter)));
+				subBuilder.delete(i-left, i+right);
+				subBuilder.insert(i-left, "$T"+String.valueOf(this.TempCounter));
+				this.TempCounter ++;
+			}
+			else if(multOp == -1 && divOp != -1)
+			{
+				int i = divOp;
+				int left = CheckLeftExpression(subBuilder, i);
+				if(HelperFunctions.IsFloat(subBuilder.substring(i-left, i).toString()))
+				{
+					this.NodeList.add(new IRNode("STOREF", subBuilder.substring(i-left, i), "$T" + String.valueOf(this.TempCounter)));
+					subBuilder.delete(i-left, i);
+					subBuilder.insert(i-left, "$T" + String.valueOf(this.TempCounter));
+					if(this.TempCounter < 10)
+					{
+						i += 2;
+					}
+					else if(this.TempCounter < 100)
+					{
+						i += 3;
+					}
+					else if(this.TempCounter < 1000)
+					{
+						i += 4;
+					}
+					this.TempCounter ++;
+					left = CheckLeftExpression(subBuilder, i);
+				}
+				int right = CheckRightExpression(subBuilder, i);
+				if(HelperFunctions.IsFloat(subBuilder.substring(i+1, i+right).toString()))
+				{
+					this.NodeList.add(new IRNode("STOREF", subBuilder.substring(i+1, i+right), "$T" + String.valueOf(this.TempCounter)));
+					subBuilder.delete(i+1, i+right);
+					subBuilder.insert(i+1, "$T" + String.valueOf(this.TempCounter));
+					this.TempCounter ++;
+					right = CheckRightExpression(subBuilder, i);
+				}
+				this.NodeList.add(new IRNode("DIVF", subBuilder.substring(i-left, i), subBuilder.substring(i+1, i+right), "$T" + String.valueOf(this.TempCounter)));
+				subBuilder.delete(i-left, i+right);
+				subBuilder.insert(i-left, "$T"+String.valueOf(this.TempCounter));
+				this.TempCounter ++;
+			}
+			else if(multOp != -1 && divOp != -1)
+			{
+				int i = (multOp < divOp) ? multOp : divOp;
+				int left = CheckLeftExpression(subBuilder, i);
+				if(HelperFunctions.IsFloat(subBuilder.substring(i-left, i).toString()))
+				{
+					this.NodeList.add(new IRNode("STOREF", subBuilder.substring(i-left, i), "$T" + String.valueOf(this.TempCounter)));
+					subBuilder.delete(i-left, i);
+					subBuilder.insert(i-left, "$T" + String.valueOf(this.TempCounter));
+					if(this.TempCounter < 10)
+					{
+						i += 2;
+					}
+					else if(this.TempCounter < 100)
+					{
+						i += 3;
+					}
+					else if(this.TempCounter < 1000)
+					{
+						i += 4;
+					}
+					this.TempCounter ++;
+					left = CheckLeftExpression(subBuilder, i);
+				}
+				int right = CheckRightExpression(subBuilder, i);
+				if(HelperFunctions.IsFloat(subBuilder.substring(i+1, i+right).toString()))
+				{
+					this.NodeList.add(new IRNode("STOREF", subBuilder.substring(i+1, i+right), "$T" + String.valueOf(this.TempCounter)));
+					subBuilder.delete(i+1, i+right);
+					subBuilder.insert(i+1, "$T" + String.valueOf(this.TempCounter));
+					this.TempCounter ++;
+					right = CheckRightExpression(subBuilder, i);
+				}
+				if(multOp < divOp)
+				{
+					this.NodeList.add(new IRNode("MULTF", subBuilder.substring(i-left, i), subBuilder.substring(i+1, i+right), "$T" + String.valueOf(this.TempCounter)));
+				}
+				else
+				{
+					this.NodeList.add(new IRNode("DIVF", subBuilder.substring(i-left, i), subBuilder.substring(i+1, i+right), "$T" + String.valueOf(this.TempCounter)));
+				}
+				subBuilder.delete(i-left, i+right);
+				subBuilder.insert(i-left, "$T"+String.valueOf(this.TempCounter));
+				this.TempCounter ++;
+			}
+			else // at this point, we have no more *'s or /'s
+			{
+				int addOp = subBuilder.indexOf("+");
+				int subOp = subBuilder.indexOf("-");
+				if(addOp != -1 && subOp == -1)
+				{
+					int i = addOp;
+					int left = CheckLeftExpression(subBuilder, i);
+					if(HelperFunctions.IsFloat(subBuilder.substring(i-left, i).toString()))
+					{
+						this.NodeList.add(new IRNode("STOREF", subBuilder.substring(i-left, i), "$T" + String.valueOf(this.TempCounter)));
+						subBuilder.delete(i-left, i);
+						subBuilder.insert(i-left, "$T" + String.valueOf(this.TempCounter));
+						if(this.TempCounter < 10)
+						{
+							i += 2;
+						}
+						else if(this.TempCounter < 100)
+						{
+							i += 3;
+						}
+						else if(this.TempCounter < 1000)
+						{
+							i += 4;
+						}
+						this.TempCounter ++;
+						left = CheckLeftExpression(subBuilder, i);
+					}
+					int right = CheckRightExpression(subBuilder, i);
+					if(HelperFunctions.IsFloat(subBuilder.substring(i+1, i+right).toString()))
+					{
+						this.NodeList.add(new IRNode("STOREF", subBuilder.substring(i+1, i+right), "$T" + String.valueOf(this.TempCounter)));
+						subBuilder.delete(i+1, i+right);
+						subBuilder.insert(i+1, "$T" + String.valueOf(this.TempCounter));
+						this.TempCounter ++;
+						right = CheckRightExpression(subBuilder, i);
+					}
+					this.NodeList.add(new IRNode("ADDF", subBuilder.substring(i-left, i), subBuilder.substring(i+1, i+right), "$T" + String.valueOf(this.TempCounter)));
+					subBuilder.delete(i-left, i+right);
+					subBuilder.insert(i-left, "$T"+String.valueOf(this.TempCounter));
+					this.TempCounter ++;
+				}
+				else if(addOp == -1 && subOp != -1)
+				{
+					int i = subOp;
+					int left = CheckLeftExpression(subBuilder, i);
+					if(HelperFunctions.IsFloat(subBuilder.substring(i-left, i).toString()))
+					{
+						//System.out.println("Number found in expression: " + subBuilder.substring(i+1, i+right));
+						this.NodeList.add(new IRNode("STOREF", subBuilder.substring(i-left, i), "$T" + String.valueOf(this.TempCounter)));
+						subBuilder.delete(i-left, i);
+						subBuilder.insert(i-left, "$T" + String.valueOf(this.TempCounter));
+						if(this.TempCounter < 10)
+						{
+							i += 2;
+						}
+						else if(this.TempCounter < 100)
+						{
+							i += 3;
+						}
+						else if(this.TempCounter < 1000)
+						{
+							i += 4;
+						}
+						this.TempCounter ++;
+						left = CheckLeftExpression(subBuilder, i);
+					}
+					int right = CheckRightExpression(subBuilder, i);
+					if(HelperFunctions.IsFloat(subBuilder.substring(i+1, i+right).toString()))
+					{
+						this.NodeList.add(new IRNode("STOREF", subBuilder.substring(i+1, i+right), "$T" + String.valueOf(this.TempCounter)));
+						subBuilder.delete(i+1, i+right);
+						subBuilder.insert(i+1, "$T" + String.valueOf(this.TempCounter));
+						this.TempCounter ++;
+						right = CheckRightExpression(subBuilder, i);
+					}
+					this.NodeList.add(new IRNode("SUBF", subBuilder.substring(i-left, i), subBuilder.substring(i+1, i+right), "$T" + String.valueOf(this.TempCounter)));
+					subBuilder.delete(i-left, i+right);
+					subBuilder.insert(i-left, "$T"+String.valueOf(this.TempCounter));
+					this.TempCounter ++;
+				}
+				else if(addOp != -1 && subOp != -1)
+				{
+					int i = (addOp < subOp) ? addOp : subOp;
+					int left = CheckLeftExpression(subBuilder, i);
+					if(HelperFunctions.IsFloat(subBuilder.substring(i-left, i).toString()))
+					{
+						this.NodeList.add(new IRNode("STOREF", subBuilder.substring(i-left, i), "$T" + String.valueOf(this.TempCounter)));
+						subBuilder.delete(i-left, i);
+						subBuilder.insert(i-left, "$T" + String.valueOf(this.TempCounter));
+						if(this.TempCounter < 10)
+						{
+							i += 2;
+						}
+						else if(this.TempCounter < 100)
+						{
+							i += 3;
+						}
+						else if(this.TempCounter < 1000)
+						{
+							i += 4;
+						}
+						this.TempCounter ++;
+						left = CheckLeftExpression(subBuilder, i);
+					}
+					int right = CheckRightExpression(subBuilder, i);
+					if(HelperFunctions.IsFloat(subBuilder.substring(i+1, i+right).toString()))
+					{
+						this.NodeList.add(new IRNode("STOREF", subBuilder.substring(i+1, i+right), "$T" + String.valueOf(this.TempCounter)));
+						subBuilder.delete(i+1, i+right);
+						subBuilder.insert(i+1, "$T" + String.valueOf(this.TempCounter));
+						this.TempCounter ++;
+						right = CheckRightExpression(subBuilder, i);
+					}
+					if(addOp < subOp)
+					{
+						this.NodeList.add(new IRNode("ADDF", subBuilder.substring(i-left, i), subBuilder.substring(i+1, i+right), "$T" + String.valueOf(this.TempCounter)));
+					}
+					else
+					{
+						this.NodeList.add(new IRNode("SUBF", subBuilder.substring(i-left, i), subBuilder.substring(i+1, i+right), "$T" + String.valueOf(this.TempCounter)));
 					}
 					subBuilder.delete(i-left, i+right);
 					subBuilder.insert(i-left, "$T"+String.valueOf(this.TempCounter));
