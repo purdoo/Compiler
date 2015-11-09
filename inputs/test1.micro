@@ -1,7 +1,7 @@
 PROGRAM p
 BEGIN
 
-INT a,b;
+INT a,b,c;
 
 FUNCTION VOID main()
 	BEGIN
@@ -10,7 +10,6 @@ FUNCTION VOID main()
 		a := a + b;
 		b := 5 + a;
 		a := 2 * b;
-		WRITE (b);
-		WRITE (a);
+		WRITE (a,b,c);
 	END
 END

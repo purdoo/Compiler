@@ -1,0 +1,18 @@
+PROGRAM test
+BEGIN
+
+	INT i, num;
+	
+	FUNCTION VOID main()
+	BEGIN
+		num := 5;
+		i := 3;
+		IF (i<5)
+			num := num + 1;
+		ELSE
+			num := num - 1;
+		FI    
+
+		WRITE(num);
+	END
+END
