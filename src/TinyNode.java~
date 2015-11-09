@@ -1,0 +1,13 @@
+import java.util.*;
+
+
+class TinyNode
+{
+    Node head;
+    Node tail;
+}
+
+class Node
+{
+	// meh
+}
