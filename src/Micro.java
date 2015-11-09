@@ -33,7 +33,7 @@ public class Micro {
 			System.out.println(";IR code");
 			irlist.PrintNodeList();
 			System.out.println(";tiny code");
-			
+			TinyNodeList tinylist = new TinyNodeList(parser.STACK, irlist);
 		}
 		catch(Exception e) 
 		{

@@ -164,7 +164,7 @@ class IRNodeList
 					}
 					this.NodeList.add(new IRNode("ADDI", subBuilder.substring(i-left, i), subBuilder.substring(i+1, i+right), "$T" + String.valueOf(this.TempCounter)));
 					subBuilder.delete(i-left, i+right);
-					subBuilder.insert(i+1, "$T"+String.valueOf(this.TempCounter));
+					subBuilder.insert(i-left, "$T"+String.valueOf(this.TempCounter));
 					this.TempCounter ++;
 				}
 				else if(addOp == -1 && subOp != -1)
