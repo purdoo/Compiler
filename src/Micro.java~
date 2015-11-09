@@ -20,18 +20,19 @@ public class Micro {
     {
 		try
 		{
-		    CharStream inStream = new ANTLRFileStream(args[0]);
+			CharStream inStream = new ANTLRFileStream(args[0]);
 			MicroLexer lexer = new MicroLexer(inStream);
 			TokenStream tokenStream = new CommonTokenStream(lexer);
-		    MicroParser parser = new MicroParser(tokenStream);
+			MicroParser parser = new MicroParser(tokenStream);
 			parser.setErrorHandler(new BailErrorStrategy()); 
 			parser.program();
 			parser.STACK.AddTable(parser.TABLE); // add last symbol table
 			IRNodeList irlist = new IRNodeList(parser.EI, parser.STACK);
 			//irlist.PrintExprList();
 			//irlist.STS.PrintStack();
+			System.out.println(";IR code");
 			irlist.PrintNodeList();
-	
+			System.out.println(";tiny code");
 			
 		}
 		catch(Exception e) 

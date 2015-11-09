@@ -30,8 +30,9 @@ public class Micro {
 			IRNodeList irlist = new IRNodeList(parser.EI, parser.STACK);
 			//irlist.PrintExprList();
 			//irlist.STS.PrintStack();
+			System.out.println(";IR code");
 			irlist.PrintNodeList();
-	
+			System.out.println(";tiny code");
 			
 		}
 		catch(Exception e) 

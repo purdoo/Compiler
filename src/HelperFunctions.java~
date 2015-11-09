@@ -30,6 +30,19 @@ public class HelperFunctions
 		}
 	}
 
+	public boolean isInteger(String input)
+	{
+		try
+		{
+				Integer.parseInt(input);
+				return true;
+		}
+		catch(Exception e)
+		{
+				return false;
+		}
+	}
+
 	public static int CountOccurancesOf(String s, String line)
 	{
 		return (line.length() - line.replace(s, "").length());
@@ -80,12 +93,12 @@ public class HelperFunctions
 					if(TempCounter < 10)
 					{
 						builder.delete(i-3, i+2);
-						builder.insert(i-1, "$T"+String.valueOf(TempCounter));
+						builder.insert(i-3, "$T"+String.valueOf(TempCounter));
 					}
 					else
 					{
 						builder.delete(i-4, i+2);
-						builder.insert(i-1, "$T"+String.valueOf(TempCounter));
+						builder.insert(i-4, "$T"+String.valueOf(TempCounter));
 					}
 				}
 			}
