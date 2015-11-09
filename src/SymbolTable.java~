@@ -25,7 +25,7 @@ class SymbolTableStack
 				else
 				{
 					System.out.println("name " + S.var_name + " type " + S.var_type);
-				}
+				}		
 			}
 			i ++;
 			if(i != SymbolTables.size())

@@ -97,7 +97,7 @@ class IRNodeList
 	{
 		while(HelperFunctions.ExpressionType(subBuilder) != 0) // while expression still has an op in it
 		{
-			System.out.println("Reducing: " + subBuilder);
+			//System.out.println("Reducing: " + subBuilder);
 			int multOp = subBuilder.indexOf("*");
 			int divOp = subBuilder.indexOf("/");
 			if(multOp != -1 && divOp == -1)

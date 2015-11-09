@@ -56,10 +56,17 @@ public class TinyNodeList
 
 	public String CheckReg(String regText)
 	{
+		/*
 		if(regText.indexOf('$') != -1)
 		{
 			return "r" + String.valueOf(this.tempCount);
 			//this.tempCount ++;
+		}
+		return regText;
+		*/
+		if(regText.indexOf('$') != -1)
+		{
+			return "r" + String.valueOf(Integer.parseInt(regText.replace("$T", ""))-1);
 		}
 		return regText;
 	}
@@ -68,33 +75,42 @@ public class TinyNodeList
 	{
 		for(IRNode irn : this.IR.NodeList)
 		{
-			System.out.println(irn.OpCode);
+			//System.out.println(irn.OpCode);
 			if(irn.OpCode == "ADDI")
-			{	
+			{
+				this.AddTinyNode("move " + this.CheckReg(irn.FirstOperand) + " " + this.CheckReg(irn.Result));
+				this.AddTinyNode("addi " + this.CheckReg(irn.SecondOperand) + " " + this.CheckReg(irn.Result));
 			}
 			else if(irn.OpCode == "SUBI")
 			{
-				
+				this.AddTinyNode("move " + this.CheckReg(irn.FirstOperand) + " " + this.CheckReg(irn.Result));
+				this.AddTinyNode("subi " + this.CheckReg(irn.SecondOperand) + " " + this.CheckReg(irn.Result));
 			}
 			else if(irn.OpCode == "MULTI")
 			{
-				
+				this.AddTinyNode("move " + this.CheckReg(irn.FirstOperand) + " " + this.CheckReg(irn.Result));
+				this.AddTinyNode("muli " + this.CheckReg(irn.SecondOperand) + " " + this.CheckReg(irn.Result));
 			}
 			else if(irn.OpCode == "DIVI")
 			{
-				
+				this.AddTinyNode("move " + this.CheckReg(irn.FirstOperand) + " " + this.CheckReg(irn.Result));
+				this.AddTinyNode("divi " + this.CheckReg(irn.SecondOperand) + " " + this.CheckReg(irn.Result));
 			}
 			else if(irn.OpCode == "STOREI")
 			{
-				this.AddTinyNode("move " + this.CheckReg(irn.FirstOperand) + " " + this.CheckReg(irn.SecondOperand));
-				this.tempCount ++;
+				this.AddTinyNode("move " + this.CheckReg(irn.FirstOperand) + " " + this.CheckReg(irn.Result));
+			}
+			else if(irn.OpCode == "WRITEI")
+			{
+				this.AddTinyNode("sys writei " + irn.Result);
 			}
 		}
+		this.AddTinyNode();
 	}
 
 	public void PrintNodes()
 	{
-		TinyNode pointer = head;
+		TinyNode pointer = head.next;
 		TinyNode tmp;
 		while(pointer.next != null)
 		{
