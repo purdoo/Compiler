@@ -42,7 +42,7 @@ class SemanticInterpreter
 {
 	public List<Sem> SemList = new ArrayList<Sem>();
 
-	public void AddSem(Sem e)
+	public void AddSem(Expr e)
 	{
 		this.SemList.add(e);
 	}

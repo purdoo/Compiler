@@ -19,7 +19,6 @@ BEGIN
 				num := num - a;
 			FI
 		FI    
-
 		WRITE(num);
 	END
 END

@@ -120,7 +120,9 @@ if_stmt: 'IF'
 } 
 decl stmt_list else_part 'FI'
 {
-	
+	/*
+	Expr E = new Expr($cond.text, $decl.text, $stmt_list.text, $else_part.text);
+	EI.AddExpr(E);*/
 };
 
 else_part: ('ELSE' decl stmt_list )? 

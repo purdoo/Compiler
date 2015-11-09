@@ -5,11 +5,11 @@ class IRNodeList
 {
 	public List<IRNode> NodeList = new ArrayList<IRNode>();
 	
-	public List<Expr> ExprList;	
+	public List<Expr> ExprList;
 	public SymbolTableStack STS;
 
-	public int TempCounter = 1;	
-
+	public int TempCounter = 1;
+	public int LabelCounter = 1;
 	public IRNodeList(ExprInterpreter EI, SymbolTableStack STS)
 	{
 		this.ExprList = EI.ExprList;
@@ -23,7 +23,6 @@ class IRNodeList
 		{
 			if(E.id == "WRITE") 
 			{
-				System.out.println(E.expr);
 				// need to accomodate having multiple variables to write in one call
 				if(E.expr.indexOf(",") != -1)
 				{
@@ -52,7 +51,74 @@ class IRNodeList
 						this.NodeList.add(new IRNode("WRITEF", E.expr));
 					}
 				}
-
+			}
+			else if(E.id == "READ")
+			{
+				// need to accomodate having multiple variables to read in one call
+				if(E.expr.indexOf(",") != -1)
+				{
+					String writeVars = E.expr.replaceAll("\\s","");
+					List<String> writeVarsList = Arrays.asList(writeVars.split(","));
+					for(String s : writeVarsList)
+					{
+						if(SymbolLookup(s).equals("INT"))
+						{
+							this.NodeList.add(new IRNode("READI", s));
+						}
+						else if(SymbolLookup(s).equals("FLOAT"))
+						{
+							this.NodeList.add(new IRNode("READF", s));
+						}
+					}
+				}
+				else
+				{
+					if(SymbolLookup(E.expr).equals("INT"))
+					{
+						this.NodeList.add(new IRNode("READI", E.expr));
+					}
+					else if(SymbolLookup(E.expr).equals("FLOAT"))
+					{
+						this.NodeList.add(new IRNode("READF", E.expr));
+					}
+				}
+			
+			}
+			else if(E.id == "IF")
+			{
+				//System.out.println(E.expr);
+				String expr = E.expr.replaceAll("\\s","");
+				String op = this.FindCompOp(expr);
+				int opIndex = expr.indexOf(op);
+				//System.out.println(op);
+				//System.out.println(opIndex);
+				StringBuilder exprBuilder = new StringBuilder(expr);
+				String lhs = exprBuilder.substring(0, opIndex);
+				String rhs = "";
+				if(op.length() == 1)
+				{
+					rhs = exprBuilder.substring(opIndex+1, expr.length());
+				}
+				else
+				{
+					rhs = exprBuilder.substring(opIndex+2, expr.length());
+				}
+				//System.out.println(lhs + ":" + rhs);
+				if(HelperFunctions.isInteger(rhs))
+				{
+					this.NodeList.add(new IRNode("STOREI", rhs, "$T" + String.valueOf(this.TempCounter)));
+				}
+				else
+				{
+					this.NodeList.add(new IRNode("STOREF", rhs, "$T" + String.valueOf(this.TempCounter)));
+				}
+				// Now comes a ton of conditional logic based on the op
+				if(op == "<")
+				{
+					this.NodeList.add(new IRNode("GE", lhs, "$T" + String.valueOf(this.TempCounter), "label" + String.valueOf(this.LabelCounter)));
+				}
+				this.TempCounter ++;
+				this.LabelCounter ++;
 			}
 			else // an add/sub/mult/div or assign function
 			{
@@ -168,11 +234,16 @@ class IRNodeList
 		}
 	}
 
+
+	/*
+	*   Reduce (Integer Version) Function
+	*
+	*/
 	public String Reduce(StringBuilder subBuilder, int order)
 	{
 		while(HelperFunctions.ExpressionType(subBuilder) != 0) // while expression still has an op in it
 		{
-			System.out.println("Reducing: " + subBuilder);
+			//System.out.println("Reducing: " + subBuilder);
 			int multOp = subBuilder.indexOf("*");
 			int divOp = subBuilder.indexOf("/");
 			if(multOp != -1 && divOp == -1)
@@ -427,6 +498,11 @@ class IRNodeList
 		return subBuilder.toString();
 	}
 
+
+	/*
+	*   Reduce (Float Version) Function
+	*
+	*/
 	public String ReduceF(StringBuilder subBuilder)
 	{
 		while(HelperFunctions.ExpressionType(subBuilder) != 0) // while expression still has an op in it
@@ -716,6 +792,44 @@ class IRNodeList
 			offset ++;
 		}
 		return offset;
+	}
+
+	public String FindCompOp(String s)
+	{
+		// compop: '<' | '>' | '=' | '!=' | '<=' | '>=';
+		int temp;
+
+		temp = s.indexOf("<=");
+		if(temp != -1)
+		{
+			return "<=";
+		}
+		temp = s.indexOf(">=");
+		if(temp != -1)
+		{
+			return ">=";
+		}
+		temp = s.indexOf("<");
+		if(temp != -1)
+		{
+			return "<";
+		}
+		temp = s.indexOf(">");
+		if(temp != -1)
+		{
+			return ">";
+		}
+		temp = s.indexOf("!=");
+		if(temp != -1)
+		{
+			return "!=";
+		}
+		temp = s.indexOf("=");
+		if(temp != -1)
+		{
+			return "=";
+		}
+		return "ERROR";
 	}
 
 	/* Given a symbol (variable) name, look at the symbol table to determine its type */

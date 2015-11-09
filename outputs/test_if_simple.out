@@ -1,0 +1,42 @@
+;IR code
+;STOREI 5 $T1
+;STOREI $T1 num
+;STOREI 3 $T2
+;STOREI $T2 i
+;STOREI 5 $T3
+;GE i $T3 label1
+;STOREI 1 $T4
+;ADDI num $T4 $T5
+;STOREI $T5 num
+;JUMP label2
+;LABEL label1
+;STOREI 1 $T6
+;SUBI num $T6 $T7
+;STOREI $T7 num
+;JUMP label2
+;LABEL label2
+;WRITEI num
+;tiny code
+var i
+var num
+move 5 r0
+move r0 num
+move 3 r1
+move r1 i
+move 5 r2
+cmpi i r2
+jge label1
+move 1 r3
+move num r4
+addi r3 r4
+move r4 num
+jmp label2
+label label1
+move 1 r5
+move num r6
+subi r5 r6
+move r6 num
+jmp label2
+label label2
+sys writei num
+sys halt

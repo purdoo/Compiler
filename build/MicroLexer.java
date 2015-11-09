@@ -83,12 +83,13 @@ public class MicroLexer extends Lexer {
 	}
 
 
+		/* Step Three */
 		public SymbolTableStack STACK = new SymbolTableStack();
 		public SymbolTable TABLE = new SymbolTable("GLOBAL");
 		/* Step Four */	
 		public ExprInterpreter EI = new ExprInterpreter();
-		//public IRNodeList IRLIST = new IRNodeList();
-		//public IRNode IRNODE = new IRNode();
+		/* Step Five */
+		public SemanticInterpreter SI = new SemanticInterpreter();
 
 
 	public MicroLexer(CharStream input) {
