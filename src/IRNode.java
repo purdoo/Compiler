@@ -147,12 +147,30 @@ class IRNodeList
 				int subOp = subBuilder.indexOf("-");
 				if(addOp != -1 && subOp == -1)
 				{
-					//System.out.println("Entering 2:" + subBuilder);
 					int i = addOp;
 					int left = CheckLeftExpression(subBuilder, i);
-					//System.out.println("Left " + left);
+					if(HelperFunctions.isInteger(subBuilder.substring(i-left, i).toString()))
+					{
+						//System.out.println("Number found in expression: " + subBuilder.substring(i+1, i+right));
+						this.NodeList.add(new IRNode("STOREI", subBuilder.substring(i-left, i), "$T" + String.valueOf(this.TempCounter)));
+						subBuilder.delete(i-left, i);
+						subBuilder.insert(i-left, "$T" + String.valueOf(this.TempCounter));
+						if(this.TempCounter < 10)
+						{
+							i += 2;
+						}
+						else if(this.TempCounter < 100)
+						{
+							i += 3;
+						}
+						else if(this.TempCounter < 1000)
+						{
+							i += 4;
+						}
+						this.TempCounter ++;
+						left = CheckLeftExpression(subBuilder, i);
+					}
 					int right = CheckRightExpression(subBuilder, i);
-					//System.out.println("Left:" + left + " Right:" + right);
 					if(HelperFunctions.isInteger(subBuilder.substring(i+1, i+right).toString()))
 					{
 						//System.out.println("Number found in expression: " + subBuilder.substring(i+1, i+right));
