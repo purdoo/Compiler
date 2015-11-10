@@ -118,11 +118,15 @@ if_stmt: 'IF'
 	Expr E = new Expr("IF", $cond.text);
 	EI.AddExpr(E);
 } 
-decl stmt_list else_part 'FI'
+decl stmt_list 
 {
-	/*
-	Expr E = new Expr($cond.text, $decl.text, $stmt_list.text, $else_part.text);
-	EI.AddExpr(E);*/
+	Expr E = new Expr("ELSE", $stmt_list.text);
+	EI.AddExpr(E);
+}
+else_part 'FI'
+{
+	Expr E = new Expr("FI", $stmt_list.text);
+	EI.AddExpr(E);
 };
 
 else_part: ('ELSE' decl stmt_list )? 

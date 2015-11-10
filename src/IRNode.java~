@@ -10,6 +10,7 @@ class IRNodeList
 
 	public int TempCounter = 1;
 	public int LabelCounter = 1;
+	public int LabelDecCounter = 1;
 	public IRNodeList(ExprInterpreter EI, SymbolTableStack STS)
 	{
 		this.ExprList = EI.ExprList;
@@ -117,8 +118,39 @@ class IRNodeList
 				{
 					this.NodeList.add(new IRNode("GE", lhs, "$T" + String.valueOf(this.TempCounter), "label" + String.valueOf(this.LabelCounter)));
 				}
+				else if(op == ">")
+				{
+					this.NodeList.add(new IRNode("LE", lhs, "$T" + String.valueOf(this.TempCounter), "label" + String.valueOf(this.LabelCounter)));
+				}
+				else if(op == "=")
+				{
+					this.NodeList.add(new IRNode("NE", lhs, "$T" + String.valueOf(this.TempCounter), "label" + String.valueOf(this.LabelCounter)));
+				}
+				else if(op == "!=")
+				{
+					this.NodeList.add(new IRNode("EQ", lhs, "$T" + String.valueOf(this.TempCounter), "label" + String.valueOf(this.LabelCounter)));
+				}
+				else if(op == "<=")
+				{
+					this.NodeList.add(new IRNode("GT", lhs, "$T" + String.valueOf(this.TempCounter), "label" + String.valueOf(this.LabelCounter)));
+				}
+				else if(op == ">=")
+				{
+					this.NodeList.add(new IRNode("LT", lhs, "$T" + String.valueOf(this.TempCounter), "label" + String.valueOf(this.LabelCounter)));
+				}
 				this.TempCounter ++;
 				this.LabelCounter ++;
+			}
+			else if(E.id == "ELSE")
+			{
+				this.NodeList.add(new IRNode("JUMP", "label" + String.valueOf(this.LabelCounter)));
+				this.NodeList.add(new IRNode("LABEL", "label" + String.valueOf(this.LabelCounter-this.LabelDecCounter)));
+				this.LabelDecCounter ++;
+			}
+			else if(E.id == "FI")
+			{
+				this.NodeList.add(new IRNode("LABEL", "label" + String.valueOf(this.LabelCounter)));
+				this.LabelCounter++;
 			}
 			else // an add/sub/mult/div or assign function
 			{

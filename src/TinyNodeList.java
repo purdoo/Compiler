@@ -140,8 +140,20 @@ public class TinyNodeList
 			{
 				this.AddTinyNode("sys writer " + irn.Result);
 			}
+			else if(irn.OpCode == "JUMP")
+			{
+				this.AddTinyNode("jmp " + irn.Result);
+			}
+			else if(irn.OpCode == "GE")
+			{
+				this.AddTinyNode("cmpi " + this.CheckReg(irn.FirstOperand) + " " + this.CheckReg(irn.SecondOperand));
+				this.AddTinyNode("jge " + irn.Result);
+			}
 
-
+			else if(irn.OpCode == "LABEL")
+			{
+				this.AddTinyNode("label " + irn.Result);
+			}
 			else
 			{
 				System.out.println("Unhandled OpCode: " + irn.OpCode);
