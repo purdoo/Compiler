@@ -149,6 +149,31 @@ public class TinyNodeList
 				this.AddTinyNode("cmpi " + this.CheckReg(irn.FirstOperand) + " " + this.CheckReg(irn.SecondOperand));
 				this.AddTinyNode("jge " + irn.Result);
 			}
+			else if(irn.OpCode == "LE") // **
+			{
+				this.AddTinyNode("cmpi " + this.CheckReg(irn.FirstOperand) + " " + this.CheckReg(irn.SecondOperand));
+				this.AddTinyNode("jle " + irn.Result);
+			}
+			else if(irn.OpCode == "NE") // **
+			{
+				this.AddTinyNode("cmpi " + this.CheckReg(irn.FirstOperand) + " " + this.CheckReg(irn.SecondOperand));
+				this.AddTinyNode("jne " + irn.Result);
+			}
+			else if(irn.OpCode == "EQ") // **
+			{
+				this.AddTinyNode("cmpi " + this.CheckReg(irn.FirstOperand) + " " + this.CheckReg(irn.SecondOperand));
+				this.AddTinyNode("jeq " + irn.Result);
+			}
+			else if(irn.OpCode == "GT") // **
+			{
+				this.AddTinyNode("cmpi " + this.CheckReg(irn.FirstOperand) + " " + this.CheckReg(irn.SecondOperand));
+				this.AddTinyNode("jgt " + irn.Result);
+			}
+			else if(irn.OpCode == "LT")
+			{
+				this.AddTinyNode("cmpi " + this.CheckReg(irn.FirstOperand) + " " + this.CheckReg(irn.SecondOperand));
+				this.AddTinyNode("jlt " + irn.Result);
+			}
 
 			else if(irn.OpCode == "LABEL")
 			{

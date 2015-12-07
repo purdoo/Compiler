@@ -1,18 +1,13 @@
 PROGRAM test
 BEGIN
-
-	INT i, num;
-	
 	FUNCTION VOID main()
 	BEGIN
-		num := 5;
-		i := 3;
-		IF (i<5)
-			num := num + 1;
+		INT a, b;
+		a := 2;
+		IF (a = 1)
+			b := 1;
 		ELSE
-			num := num - 1;
-		FI    
-
-		WRITE(num);
+			b := 2;
+		FI 
 	END
 END

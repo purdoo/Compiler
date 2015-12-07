@@ -18,8 +18,7 @@ BEGIN
 			IF (i >= 5)
 				num := num - a;
 			FI
-		FI    
-
+		FI
 		WRITE(num);
 	END
 END

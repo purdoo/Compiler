@@ -43,8 +43,6 @@ var_decl: var_type id_list
 var_type: 'FLOAT' | 'INT';
 any_type: var_type | 'VOID'; 
 id_list: id (',' id)*;
-
-
 /* End Variable Declarations */
 
 
@@ -107,7 +105,7 @@ primary: '(' expr ')' | id | INTLITERAL | FLOATLITERAL;
 addop: '+' | '-';
 mulop: '*' | '/';
 
-/* Complex Statements and Condition */ 
+/* Complex Statements and Conditions */ 
 if_stmt: 'IF' 
 {
 	STACK.AddTable(TABLE);
@@ -117,8 +115,8 @@ if_stmt: 'IF'
 {
 	Expr E = new Expr("IF", $cond.text);
 	EI.AddExpr(E);
-} 
-decl stmt_list 
+}
+decl stmt_list
 {
 	E = new Expr("ELSE", $stmt_list.text);
 	EI.AddExpr(E);

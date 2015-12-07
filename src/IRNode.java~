@@ -8,9 +8,14 @@ class IRNodeList
 	public List<Expr> ExprList;
 	public SymbolTableStack STS;
 
+	/* For Label Generation and Tracking */
 	public int TempCounter = 1;
+	//public int[] Labels;
+	public ArrayList<Integer> Labels = new ArrayList<>();
 	public int LabelCounter = 1;
-	public int LabelDecCounter = 1;
+	public int LabelIndex = -1;
+	public int LabelIndexRef = 0;
+
 	public IRNodeList(ExprInterpreter EI, SymbolTableStack STS)
 	{
 		this.ExprList = EI.ExprList;
@@ -87,12 +92,9 @@ class IRNodeList
 			}
 			else if(E.id == "IF")
 			{
-				//System.out.println(E.expr);
 				String expr = E.expr.replaceAll("\\s","");
 				String op = this.FindCompOp(expr);
 				int opIndex = expr.indexOf(op);
-				//System.out.println(op);
-				//System.out.println(opIndex);
 				StringBuilder exprBuilder = new StringBuilder(expr);
 				String lhs = exprBuilder.substring(0, opIndex);
 				String rhs = "";
@@ -104,7 +106,6 @@ class IRNodeList
 				{
 					rhs = exprBuilder.substring(opIndex+2, expr.length());
 				}
-				//System.out.println(lhs + ":" + rhs);
 				if(HelperFunctions.isInteger(rhs))
 				{
 					this.NodeList.add(new IRNode("STOREI", rhs, "$T" + String.valueOf(this.TempCounter)));
@@ -113,7 +114,6 @@ class IRNodeList
 				{
 					this.NodeList.add(new IRNode("STOREF", rhs, "$T" + String.valueOf(this.TempCounter)));
 				}
-				// Now comes a ton of conditional logic based on the op
 				if(op == "<")
 				{
 					this.NodeList.add(new IRNode("GE", lhs, "$T" + String.valueOf(this.TempCounter), "label" + String.valueOf(this.LabelCounter)));
@@ -138,19 +138,22 @@ class IRNodeList
 				{
 					this.NodeList.add(new IRNode("LT", lhs, "$T" + String.valueOf(this.TempCounter), "label" + String.valueOf(this.LabelCounter)));
 				}
-				this.TempCounter ++;
-				this.LabelCounter ++;
+				this.TempCounter++;
+				this.LabelIndex ++;
+				this.Labels.add(this.LabelCounter);
+				this.LabelCounter += 2;
 			}
 			else if(E.id == "ELSE")
 			{
-				this.NodeList.add(new IRNode("JUMP", "label" + String.valueOf(this.LabelCounter)));
-				this.NodeList.add(new IRNode("LABEL", "label" + String.valueOf(this.LabelCounter-this.LabelDecCounter)));
-				this.LabelDecCounter ++;
+				this.NodeList.add(new IRNode("JUMP", "label" + String.valueOf(this.Labels.get(this.LabelIndex) + 1)));
+				this.NodeList.add(new IRNode("LABEL", "label" + String.valueOf(this.Labels.get(this.LabelIndex))));
 			}
 			else if(E.id == "FI")
 			{
-				this.NodeList.add(new IRNode("LABEL", "label" + String.valueOf(this.LabelCounter)));
-				this.LabelCounter++;
+				this.NodeList.add(new IRNode("JUMP", "label" + String.valueOf(this.Labels.get(this.LabelIndex) + 1)));
+				this.NodeList.add(new IRNode("LABEL", "label" + String.valueOf(this.Labels.get(this.LabelIndex) + 1)));
+				this.Labels.remove(this.LabelIndex);
+				this.LabelIndex --;
 			}
 			else // an add/sub/mult/div or assign function
 			{
@@ -184,23 +187,17 @@ class IRNodeList
 						}
 						else if(HelperFunctions.CountOccurancesOf("(", expr) == 1)
 						{
-							// Parenthesis Reduction(s) First
 							StringBuilder builder = new StringBuilder(expr);
 							int open = builder.indexOf("(");
 							int close = builder.indexOf(")");
 							StringBuilder subBuilder = new StringBuilder(builder.substring(open+1,close));
-							//System.out.println(subBuilder);
-							// Now simplify the subBuilder (stuff between parenthesis) to a single register
 							String reduced = Reduce(subBuilder, 1);
 							builder.replace(open, close+1, reduced);
-							//System.out.println(builder);
-							/* Reduce again for the rest of the equation now that the parenthesis are gone */
 							reduced = Reduce(builder, 1);
 							this.NodeList.add(new IRNode("STOREI", reduced, E.id));
 						}
 						else if(HelperFunctions.CountOccurancesOf("(", expr) > 1)
 						{
-							//System.out.println(expr + "multiple paren");
 							String reduced;
 							StringBuilder builder = new StringBuilder(expr);
 							while(HelperFunctions.CountOccurancesOf('(', builder) != 0)
@@ -208,7 +205,6 @@ class IRNodeList
 								int open = builder.indexOf("(");
 								int close = builder.indexOf(")");
 								StringBuilder subBuilder = new StringBuilder(builder.substring(open+1,close));
-								//System.out.println(subBuilder);
 								reduced = Reduce(subBuilder, 1);
 								builder.replace(open, close+1, reduced);
 							}
@@ -218,7 +214,6 @@ class IRNodeList
 					}
 					else if(SymbolLookup(E.id).equals("FLOAT"))
 					{
-						//System.out.println("FLOAT FOUND, ABORT ABORT ABORT!");
 						String expr = E.expr.replaceAll("\\s","");
 						if(HelperFunctions.CountOccurancesOf("(", expr) == 0)
 						{
@@ -229,23 +224,17 @@ class IRNodeList
 						}
 						else if(HelperFunctions.CountOccurancesOf("(", expr) == 1)
 						{
-							// Parenthesis Reduction(s) First
 							StringBuilder builder = new StringBuilder(expr);
 							int open = builder.indexOf("(");
 							int close = builder.indexOf(")");
 							StringBuilder subBuilder = new StringBuilder(builder.substring(open+1,close));
-							//System.out.println(subBuilder);
-							// Now simplify the subBuilder (stuff between parenthesis) to a single register
 							String reduced = ReduceF(subBuilder);
 							builder.replace(open, close+1, reduced);
-							//System.out.println(builder);
-							/* Reduce again for the rest of the equation now that the parenthesis are gone */
 							reduced = ReduceF(builder);
 							this.NodeList.add(new IRNode("STOREF", reduced, E.id));
 						}
 						else if(HelperFunctions.CountOccurancesOf("(", expr) > 1)
 						{
-							//System.out.println(expr + "multiple paren");
 							String reduced;
 							StringBuilder builder = new StringBuilder(expr);
 							while(HelperFunctions.CountOccurancesOf('(', builder) != 0)
@@ -253,7 +242,6 @@ class IRNodeList
 								int open = builder.indexOf("(");
 								int close = builder.indexOf(")");
 								StringBuilder subBuilder = new StringBuilder(builder.substring(open+1,close));
-								//System.out.println(subBuilder);
 								reduced = ReduceF(subBuilder);
 								builder.replace(open, close+1, reduced);
 							}
