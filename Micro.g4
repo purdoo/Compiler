@@ -140,12 +140,27 @@ incr_stmt: assign_expr | ;
 
 /* ECE 468 Student version of for statement */
 while_stmt: 'WHILE' '(' cond ')' decl stmt_list 'ENDWHILE';
+
 for_stmt: 'FOR' 
 {
 	STACK.AddTable(TABLE);
 	TABLE = new SymbolTable();
 }
-'(' init_stmt ';' cond ';' incr_stmt ')' decl stmt_list 'ROF'
+'(' init_stmt ';' cond ';' 
+{
+	Expr E = new Expr("FOR", $init_stmt.text + "," + $cond.text + "," + $incr_stmt.text);
+	EI.AddExpr(E);
+} 
+incr_stmt ')' decl stmt_list
+{
+	E = new Expr("CONT", $init_stmt.text + "," + $cond.text + "," + $incr_stmt.text);
+	EI.AddExpr(E);
+}
+'ROF'
+{
+	E = new Expr("ROF", "Ayy lmao");
+	EI.AddExpr(E);
+}
 ;
 
 KEYWORD : 'PROGRAM' | 'BEGIN' | 'END' | 'FUNCTION' | 'READ' | 'WRITE' | 'IF' | 'ELSE' | 'FI' | 'FOR' | 'ROF' | 'CONTINUE' | 'BREAK' | 'RETURN' | 'INT' | 'VOID' | 'STRING' | 'FLOAT' ;

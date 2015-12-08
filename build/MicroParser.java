@@ -2573,6 +2573,9 @@ public class MicroParser extends Parser {
 	}
 
 	public static class For_stmtContext extends ParserRuleContext {
+		public Init_stmtContext init_stmt;
+		public CondContext cond;
+		public Incr_stmtContext incr_stmt;
 		public Init_stmtContext init_stmt() {
 			return getRuleContext(Init_stmtContext.class,0);
 		}
@@ -2617,23 +2620,35 @@ public class MicroParser extends Parser {
 			setState(337);
 			match(T__11);
 			setState(338);
-			init_stmt();
+			((For_stmtContext)_localctx).init_stmt = init_stmt();
 			setState(339);
 			match(T__5);
 			setState(340);
-			cond();
+			((For_stmtContext)_localctx).cond = cond();
 			setState(341);
 			match(T__5);
-			setState(342);
-			incr_stmt();
+
+				Expr E = new Expr("FOR", (((For_stmtContext)_localctx).init_stmt!=null?_input.getText(((For_stmtContext)_localctx).init_stmt.start,((For_stmtContext)_localctx).init_stmt.stop):null) + "," + (((For_stmtContext)_localctx).cond!=null?_input.getText(((For_stmtContext)_localctx).cond.start,((For_stmtContext)_localctx).cond.stop):null) + "," + (((For_stmtContext)_localctx).incr_stmt!=null?_input.getText(((For_stmtContext)_localctx).incr_stmt.start,((For_stmtContext)_localctx).incr_stmt.stop):null));
+				EI.AddExpr(E);
+
 			setState(343);
-			match(T__12);
+			((For_stmtContext)_localctx).incr_stmt = incr_stmt();
 			setState(344);
-			decl();
+			match(T__12);
 			setState(345);
-			stmt_list();
+			decl();
 			setState(346);
+			stmt_list();
+
+				E = new Expr("CONT", (((For_stmtContext)_localctx).init_stmt!=null?_input.getText(((For_stmtContext)_localctx).init_stmt.start,((For_stmtContext)_localctx).init_stmt.stop):null) + "," + (((For_stmtContext)_localctx).cond!=null?_input.getText(((For_stmtContext)_localctx).cond.start,((For_stmtContext)_localctx).cond.stop):null) + "," + (((For_stmtContext)_localctx).incr_stmt!=null?_input.getText(((For_stmtContext)_localctx).incr_stmt.start,((For_stmtContext)_localctx).incr_stmt.stop):null));
+				EI.AddExpr(E);
+
+			setState(348);
 			match(T__32);
+
+				E = new Expr("ROF", "Ayy lmao");
+				EI.AddExpr(E);
+
 			}
 		}
 		catch (RecognitionException re) {
@@ -2672,7 +2687,7 @@ public class MicroParser extends Parser {
 	}
 
 	public static final String _serializedATN =
-		"\3\u0430\ud6d1\u8206\uad2d\u4417\uaef1\u8d80\uaadd\3+\u015f\4\2\t\2\4"+
+		"\3\u0430\ud6d1\u8206\uad2d\u4417\uaef1\u8d80\uaadd\3+\u0162\4\2\t\2\4"+
 		"\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\4\b\t\b\4\t\t\t\4\n\t\n\4\13\t"+
 		"\13\4\f\t\f\4\r\t\r\4\16\t\16\4\17\t\17\4\20\t\20\4\21\t\21\4\22\t\22"+
 		"\4\23\t\23\4\24\t\24\4\25\t\25\4\26\t\26\4\27\t\27\4\30\t\30\4\31\t\31"+
@@ -2695,32 +2710,32 @@ public class MicroParser extends Parser {
 		"\n$\3%\3%\3%\3%\3%\3%\3%\5%\u0121\n%\3&\3&\3\'\3\'\3(\3(\3(\3(\3(\3(\3"+
 		"(\3(\3(\3(\3(\3(\3(\3)\3)\3)\3)\5)\u0138\n)\3)\3)\3*\3*\3*\3*\3+\3+\3"+
 		",\3,\5,\u0144\n,\3-\3-\5-\u0148\n-\3.\3.\3.\3.\3.\3.\3.\3.\3/\3/\3/\3"+
-		"/\3/\3/\3/\3/\3/\3/\3/\3/\3/\3/\2\4:>\60\2\4\6\b\n\f\16\20\22\24\26\30"+
-		"\32\34\36 \"$&(*,.\60\62\64\668:<>@BDFHJLNPRTVXZ\\\2\6\3\2\t\n\3\2\23"+
-		"\24\3\2\25\26\3\2\32\37\u014a\2^\3\2\2\2\4d\3\2\2\2\6f\3\2\2\2\bl\3\2"+
-		"\2\2\nq\3\2\2\2\fs\3\2\2\2\16{\3\2\2\2\20\177\3\2\2\2\22\u0082\3\2\2\2"+
-		"\24\u0086\3\2\2\2\26\u008b\3\2\2\2\30\u008f\3\2\2\2\32\u0091\3\2\2\2\34"+
-		"\u009d\3\2\2\2\36\u009f\3\2\2\2 \u00a8\3\2\2\2\"\u00ad\3\2\2\2$\u00b0"+
-		"\3\2\2\2&\u00bb\3\2\2\2(\u00c2\3\2\2\2*\u00c7\3\2\2\2,\u00cd\3\2\2\2."+
-		"\u00cf\3\2\2\2\60\u00d2\3\2\2\2\62\u00d7\3\2\2\2\64\u00de\3\2\2\2\66\u00e5"+
-		"\3\2\2\28\u00e9\3\2\2\2:\u00ec\3\2\2\2<\u00f6\3\2\2\2>\u00f9\3\2\2\2@"+
-		"\u0105\3\2\2\2B\u0107\3\2\2\2D\u0110\3\2\2\2F\u0117\3\2\2\2H\u0120\3\2"+
-		"\2\2J\u0122\3\2\2\2L\u0124\3\2\2\2N\u0126\3\2\2\2P\u0137\3\2\2\2R\u013b"+
-		"\3\2\2\2T\u013f\3\2\2\2V\u0143\3\2\2\2X\u0147\3\2\2\2Z\u0149\3\2\2\2\\"+
-		"\u0151\3\2\2\2^_\7\3\2\2_`\5\4\3\2`a\7\4\2\2ab\5\6\4\2bc\7\5\2\2c\3\3"+
-		"\2\2\2de\7(\2\2e\5\3\2\2\2fg\5\b\5\2gh\5\"\22\2h\7\3\2\2\2ik\5\n\6\2j"+
-		"i\3\2\2\2kn\3\2\2\2lj\3\2\2\2lm\3\2\2\2m\t\3\2\2\2nl\3\2\2\2or\5\16\b"+
-		"\2pr\5\22\n\2qo\3\2\2\2qp\3\2\2\2r\13\3\2\2\2st\7\6\2\2tu\5\4\3\2uv\7"+
-		"\7\2\2vw\5\20\t\2wx\7\b\2\2xy\b\7\1\2y\r\3\2\2\2z|\5\f\7\2{z\3\2\2\2|"+
-		"}\3\2\2\2}{\3\2\2\2}~\3\2\2\2~\17\3\2\2\2\177\u0080\7+\2\2\u0080\21\3"+
-		"\2\2\2\u0081\u0083\5\24\13\2\u0082\u0081\3\2\2\2\u0083\u0084\3\2\2\2\u0084"+
-		"\u0082\3\2\2\2\u0084\u0085\3\2\2\2\u0085\23\3\2\2\2\u0086\u0087\5\26\f"+
-		"\2\u0087\u0088\5\32\16\2\u0088\u0089\b\13\1\2\u0089\u008a\7\b\2\2\u008a"+
-		"\25\3\2\2\2\u008b\u008c\t\2\2\2\u008c\27\3\2\2\2\u008d\u0090\5\26\f\2"+
-		"\u008e\u0090\7\13\2\2\u008f\u008d\3\2\2\2\u008f\u008e\3\2\2\2\u0090\31"+
-		"\3\2\2\2\u0091\u0096\5\4\3\2\u0092\u0093\7\f\2\2\u0093\u0095\5\4\3\2\u0094"+
-		"\u0092\3\2\2\2\u0095\u0098\3\2\2\2\u0096\u0094\3\2\2\2\u0096\u0097\3\2"+
-		"\2\2\u0097\33\3\2\2\2\u0098\u0096\3\2\2\2\u0099\u009a\5\36\20\2\u009a"+
+		"/\3/\3/\3/\3/\3/\3/\3/\3/\3/\3/\3/\3/\3/\2\4:>\60\2\4\6\b\n\f\16\20\22"+
+		"\24\26\30\32\34\36 \"$&(*,.\60\62\64\668:<>@BDFHJLNPRTVXZ\\\2\6\3\2\t"+
+		"\n\3\2\23\24\3\2\25\26\3\2\32\37\u014d\2^\3\2\2\2\4d\3\2\2\2\6f\3\2\2"+
+		"\2\bl\3\2\2\2\nq\3\2\2\2\fs\3\2\2\2\16{\3\2\2\2\20\177\3\2\2\2\22\u0082"+
+		"\3\2\2\2\24\u0086\3\2\2\2\26\u008b\3\2\2\2\30\u008f\3\2\2\2\32\u0091\3"+
+		"\2\2\2\34\u009d\3\2\2\2\36\u009f\3\2\2\2 \u00a8\3\2\2\2\"\u00ad\3\2\2"+
+		"\2$\u00b0\3\2\2\2&\u00bb\3\2\2\2(\u00c2\3\2\2\2*\u00c7\3\2\2\2,\u00cd"+
+		"\3\2\2\2.\u00cf\3\2\2\2\60\u00d2\3\2\2\2\62\u00d7\3\2\2\2\64\u00de\3\2"+
+		"\2\2\66\u00e5\3\2\2\28\u00e9\3\2\2\2:\u00ec\3\2\2\2<\u00f6\3\2\2\2>\u00f9"+
+		"\3\2\2\2@\u0105\3\2\2\2B\u0107\3\2\2\2D\u0110\3\2\2\2F\u0117\3\2\2\2H"+
+		"\u0120\3\2\2\2J\u0122\3\2\2\2L\u0124\3\2\2\2N\u0126\3\2\2\2P\u0137\3\2"+
+		"\2\2R\u013b\3\2\2\2T\u013f\3\2\2\2V\u0143\3\2\2\2X\u0147\3\2\2\2Z\u0149"+
+		"\3\2\2\2\\\u0151\3\2\2\2^_\7\3\2\2_`\5\4\3\2`a\7\4\2\2ab\5\6\4\2bc\7\5"+
+		"\2\2c\3\3\2\2\2de\7(\2\2e\5\3\2\2\2fg\5\b\5\2gh\5\"\22\2h\7\3\2\2\2ik"+
+		"\5\n\6\2ji\3\2\2\2kn\3\2\2\2lj\3\2\2\2lm\3\2\2\2m\t\3\2\2\2nl\3\2\2\2"+
+		"or\5\16\b\2pr\5\22\n\2qo\3\2\2\2qp\3\2\2\2r\13\3\2\2\2st\7\6\2\2tu\5\4"+
+		"\3\2uv\7\7\2\2vw\5\20\t\2wx\7\b\2\2xy\b\7\1\2y\r\3\2\2\2z|\5\f\7\2{z\3"+
+		"\2\2\2|}\3\2\2\2}{\3\2\2\2}~\3\2\2\2~\17\3\2\2\2\177\u0080\7+\2\2\u0080"+
+		"\21\3\2\2\2\u0081\u0083\5\24\13\2\u0082\u0081\3\2\2\2\u0083\u0084\3\2"+
+		"\2\2\u0084\u0082\3\2\2\2\u0084\u0085\3\2\2\2\u0085\23\3\2\2\2\u0086\u0087"+
+		"\5\26\f\2\u0087\u0088\5\32\16\2\u0088\u0089\b\13\1\2\u0089\u008a\7\b\2"+
+		"\2\u008a\25\3\2\2\2\u008b\u008c\t\2\2\2\u008c\27\3\2\2\2\u008d\u0090\5"+
+		"\26\f\2\u008e\u0090\7\13\2\2\u008f\u008d\3\2\2\2\u008f\u008e\3\2\2\2\u0090"+
+		"\31\3\2\2\2\u0091\u0096\5\4\3\2\u0092\u0093\7\f\2\2\u0093\u0095\5\4\3"+
+		"\2\u0094\u0092\3\2\2\2\u0095\u0098\3\2\2\2\u0096\u0094\3\2\2\2\u0096\u0097"+
+		"\3\2\2\2\u0097\33\3\2\2\2\u0098\u0096\3\2\2\2\u0099\u009a\5\36\20\2\u009a"+
 		"\u009b\5 \21\2\u009b\u009e\3\2\2\2\u009c\u009e\3\2\2\2\u009d\u0099\3\2"+
 		"\2\2\u009d\u009c\3\2\2\2\u009e\35\3\2\2\2\u009f\u00a0\5\26\f\2\u00a0\u00a1"+
 		"\5\4\3\2\u00a1\u00a2\b\20\1\2\u00a2\37\3\2\2\2\u00a3\u00a4\7\f\2\2\u00a4"+
@@ -2778,10 +2793,11 @@ public class MicroParser extends Parser {
 		"R*\2\u014c\u014d\7\17\2\2\u014d\u014e\5\b\5\2\u014e\u014f\5(\25\2\u014f"+
 		"\u0150\7!\2\2\u0150[\3\2\2\2\u0151\u0152\7\"\2\2\u0152\u0153\b/\1\2\u0153"+
 		"\u0154\7\16\2\2\u0154\u0155\5V,\2\u0155\u0156\7\b\2\2\u0156\u0157\5R*"+
-		"\2\u0157\u0158\7\b\2\2\u0158\u0159\5X-\2\u0159\u015a\7\17\2\2\u015a\u015b"+
-		"\5\b\5\2\u015b\u015c\5(\25\2\u015c\u015d\7#\2\2\u015d]\3\2\2\2\27lq}\u0084"+
-		"\u008f\u0096\u009d\u00a8\u00ad\u00c2\u00c7\u00cd\u00f3\u0100\u0105\u0110"+
-		"\u0117\u0120\u0137\u0143\u0147";
+		"\2\u0157\u0158\7\b\2\2\u0158\u0159\b/\1\2\u0159\u015a\5X-\2\u015a\u015b"+
+		"\7\17\2\2\u015b\u015c\5\b\5\2\u015c\u015d\5(\25\2\u015d\u015e\b/\1\2\u015e"+
+		"\u015f\7#\2\2\u015f\u0160\b/\1\2\u0160]\3\2\2\2\27lq}\u0084\u008f\u0096"+
+		"\u009d\u00a8\u00ad\u00c2\u00c7\u00cd\u00f3\u0100\u0105\u0110\u0117\u0120"+
+		"\u0137\u0143\u0147";
 	public static final ATN _ATN =
 		new ATNDeserializer().deserialize(_serializedATN.toCharArray());
 	static {

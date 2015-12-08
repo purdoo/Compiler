@@ -4,7 +4,7 @@ import java.util.*;
 class IRNodeList
 {
 	public List<IRNode> NodeList = new ArrayList<IRNode>();
-	
+	public List<IRNode> ReservedNodeList = new ArrayList<IRNode>();
 	public List<Expr> ExprList;
 	public SymbolTableStack STS;
 
@@ -155,6 +155,92 @@ class IRNodeList
 				this.Labels.remove(this.LabelIndex);
 				this.LabelIndex --;
 			}
+
+			else if(E.id == "FOR")
+			{
+				String expr = E.expr.replaceAll("\\s","");
+				//System.out.println("For Loop: " + expr);
+				String[] parts = expr.split(",");
+				int lIndex = expr.indexOf(":");
+				int rIndex = expr.indexOf("=");
+				StringBuilder exprBuilder = new StringBuilder(parts[0]);
+				String lhs = exprBuilder.substring(0, lIndex);
+				String rhs = exprBuilder.substring(rIndex+1, parts[0].length());
+				//System.out.println("For Loop: " + lhs + ", " +  rhs);
+				if(HelperFunctions.isInteger(rhs))
+				{
+					//this.NodeList.add(new IRNode("STOREI", rhs, "$T" + String.valueOf(this.TempCounter)));
+				}
+				else
+				{
+					//this.NodeList.add(new IRNode("STOREF", rhs, "$T" + String.valueOf(this.TempCounter)));
+				}
+				
+				this.LabelIndex ++;
+				this.Labels.add(this.LabelCounter);
+				this.LabelCounter += 2;
+				this.NodeList.add(new IRNode("LABEL", "label" + String.valueOf(this.Labels.get(this.LabelIndex))));
+				exprBuilder = new StringBuilder(parts[1]);
+				System.out.println("For Loop: " + parts[1]);
+				String op = this.FindCompOp(parts[1]);
+				int opIndex = parts[1].indexOf(op);
+				if(op.length() == 1)
+				{
+					rhs = exprBuilder.substring(opIndex+1, parts[1].length());
+				}
+				else
+				{
+					rhs = exprBuilder.substring(opIndex+2, parts[1].length());
+				}
+				if(HelperFunctions.isInteger(rhs))
+				{
+					this.NodeList.add(new IRNode("STOREI", rhs, "$T" + String.valueOf(this.TempCounter)));
+				}
+				else
+				{
+					this.NodeList.add(new IRNode("STOREF", rhs, "$T" + String.valueOf(this.TempCounter)));
+				}
+				if(op == "<")
+				{
+					this.NodeList.add(new IRNode("GE", lhs, "$T" + String.valueOf(this.TempCounter), "label" + String.valueOf(this.LabelCounter)));
+				}
+				else if(op == ">")
+				{
+					this.NodeList.add(new IRNode("LE", lhs, "$T" + String.valueOf(this.TempCounter), "label" + String.valueOf(this.LabelCounter)));
+				}
+				else if(op == "=")
+				{
+					this.NodeList.add(new IRNode("NE", lhs, "$T" + String.valueOf(this.TempCounter), "label" + String.valueOf(this.LabelCounter)));
+				}
+				else if(op == "!=")
+				{
+					this.NodeList.add(new IRNode("EQ", lhs, "$T" + String.valueOf(this.TempCounter), "label" + String.valueOf(this.LabelCounter)));
+				}
+				else if(op == "<=")
+				{
+					this.NodeList.add(new IRNode("GT", lhs, "$T" + String.valueOf(this.TempCounter), "label" + String.valueOf(this.LabelCounter)));
+				}
+				else if(op == ">=")
+				{
+					this.NodeList.add(new IRNode("LT", lhs, "$T" + String.valueOf(this.TempCounter), "label" + String.valueOf(this.LabelCounter)));
+				}
+				this.TempCounter++;
+			}
+			else if(E.id == "CONT")
+			{
+				//System.out.println("Cont For Loop Found: " + E.expr);
+				this.NodeList.add(new IRNode("LABEL", "label" + String.valueOf(this.Labels.get(this.LabelIndex) + 1)));
+				// do math here pls
+				this.NodeList.add(new IRNode("JUMP", "label" + String.valueOf(this.Labels.get(this.LabelIndex))));
+			}
+			else if(E.id == "ROF")
+			{
+				//System.out.println("For Loop Ended...");
+				this.NodeList.add(new IRNode("LABEL", "label" + String.valueOf(this.Labels.get(this.LabelIndex) + 2)));
+				this.Labels.remove(this.LabelIndex);
+				this.LabelIndex --;
+			}
+
 			else // an add/sub/mult/div or assign function
 			{
 				if(HelperFunctions.ExpressionType(E.expr) == 0) // assign function
