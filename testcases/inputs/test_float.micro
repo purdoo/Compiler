@@ -1,0 +1,9 @@
+PROGRAM testfloat
+BEGIN
+	FLOAT i, j;
+	FUNCTION VOID main()
+	BEGIN
+		i := 0.5*(j + j/u);
+		j := i;
+	END
+END

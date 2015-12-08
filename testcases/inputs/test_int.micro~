@@ -1,0 +1,9 @@
+PROGRAM testint
+BEGIN
+	INT i, j;
+	FUNCTION VOID main()
+	BEGIN
+		i := 5*(j/u);
+		j := i;
+	END
+END
