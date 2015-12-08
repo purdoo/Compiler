@@ -45,6 +45,10 @@ public class HelperFunctions
 
 	public static boolean IsFloat(String input)
 	{
+		if(!input.contains("."))
+		{
+			return false;
+		}
 		try
 		{
 			Double.parseDouble(input);

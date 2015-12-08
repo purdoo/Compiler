@@ -2627,20 +2627,20 @@ public class MicroParser extends Parser {
 			((For_stmtContext)_localctx).cond = cond();
 			setState(341);
 			match(T__5);
+			setState(342);
+			((For_stmtContext)_localctx).incr_stmt = incr_stmt();
+			setState(343);
+			match(T__12);
 
 				Expr E = new Expr("FOR", (((For_stmtContext)_localctx).init_stmt!=null?_input.getText(((For_stmtContext)_localctx).init_stmt.start,((For_stmtContext)_localctx).init_stmt.stop):null) + "," + (((For_stmtContext)_localctx).cond!=null?_input.getText(((For_stmtContext)_localctx).cond.start,((For_stmtContext)_localctx).cond.stop):null) + "," + (((For_stmtContext)_localctx).incr_stmt!=null?_input.getText(((For_stmtContext)_localctx).incr_stmt.start,((For_stmtContext)_localctx).incr_stmt.stop):null));
 				EI.AddExpr(E);
 
-			setState(343);
-			((For_stmtContext)_localctx).incr_stmt = incr_stmt();
-			setState(344);
-			match(T__12);
 			setState(345);
 			decl();
 			setState(346);
 			stmt_list();
 
-				E = new Expr("CONT", (((For_stmtContext)_localctx).init_stmt!=null?_input.getText(((For_stmtContext)_localctx).init_stmt.start,((For_stmtContext)_localctx).init_stmt.stop):null) + "," + (((For_stmtContext)_localctx).cond!=null?_input.getText(((For_stmtContext)_localctx).cond.start,((For_stmtContext)_localctx).cond.stop):null) + "," + (((For_stmtContext)_localctx).incr_stmt!=null?_input.getText(((For_stmtContext)_localctx).incr_stmt.start,((For_stmtContext)_localctx).incr_stmt.stop):null));
+				E = new Expr("CONT", (((For_stmtContext)_localctx).incr_stmt!=null?_input.getText(((For_stmtContext)_localctx).incr_stmt.start,((For_stmtContext)_localctx).incr_stmt.stop):null));
 				EI.AddExpr(E);
 
 			setState(348);
@@ -2793,8 +2793,8 @@ public class MicroParser extends Parser {
 		"R*\2\u014c\u014d\7\17\2\2\u014d\u014e\5\b\5\2\u014e\u014f\5(\25\2\u014f"+
 		"\u0150\7!\2\2\u0150[\3\2\2\2\u0151\u0152\7\"\2\2\u0152\u0153\b/\1\2\u0153"+
 		"\u0154\7\16\2\2\u0154\u0155\5V,\2\u0155\u0156\7\b\2\2\u0156\u0157\5R*"+
-		"\2\u0157\u0158\7\b\2\2\u0158\u0159\b/\1\2\u0159\u015a\5X-\2\u015a\u015b"+
-		"\7\17\2\2\u015b\u015c\5\b\5\2\u015c\u015d\5(\25\2\u015d\u015e\b/\1\2\u015e"+
+		"\2\u0157\u0158\7\b\2\2\u0158\u0159\5X-\2\u0159\u015a\7\17\2\2\u015a\u015b"+
+		"\b/\1\2\u015b\u015c\5\b\5\2\u015c\u015d\5(\25\2\u015d\u015e\b/\1\2\u015e"+
 		"\u015f\7#\2\2\u015f\u0160\b/\1\2\u0160]\3\2\2\2\27lq}\u0084\u008f\u0096"+
 		"\u009d\u00a8\u00ad\u00c2\u00c7\u00cd\u00f3\u0100\u0105\u0110\u0117\u0120"+
 		"\u0137\u0143\u0147";
