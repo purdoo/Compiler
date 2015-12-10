@@ -1,0 +1,72 @@
+************************************************************************************************************
+step4_testcase3.micro
+
+Sample Solution
+java -cp lib/antlr.jar:step4.jar Micro testcases/inputs4/step4_testcase3.micro > testcases/tinygen/step4_testcase3_sample.out;
+tiny testcases/tinygen/step4_testcase3_sample.out
+
+My Compiler
+java -cp lib/antlr.jar:classes/ Micro testcases/inputs4/step4_testcase3.micro > testcases/tinygen/step4_testcase3.out;
+tiny testcases/tinygen/step4_testcase3.out
+
+************************************************************************************************************
+test_expr.out
+
+Sample Solution
+java -cp lib/antlr.jar:step4.jar Micro testcases/inputs4/test_expr.micro > testcases/tinygen/test_expr_sample.out;
+tiny testcases/tinygen/test_expr_sample.out
+12102033027-20218228268-1013.1415921.57081.57082415.5277
+
+My Compiler
+java -cp lib/antlr.jar:classes/ Micro testcases/inputs4/test_expr.micro > testcases/tinygen/test_expr.out;
+tiny testcases/tinygen/test_expr.out
+12102033027-20218228268-1013.1415921.57081.57082415.5277
+
+************************************************************************************************************
+test_if.micro
+
+Sample Solution
+java -cp lib/antlr.jar:step5.jar Micro testcases/inputs5/test_if.micro > testcases/tinygen/test_if_sample.out;
+tiny testcases/tinygen/test_if_sample.out
+91
+
+My Compiler
+java -cp lib/antlr.jar:classes/ Micro testcases/inputs5/test_if.micro > testcases/tinygen/test_if.out;
+tiny testcases/tinygen/test_if.out
+91
+************************************************************************************************************
+test_for.micro
+
+Sample Solution
+java -cp lib/antlr.jar:step5.jar Micro testcases/inputs5/test_for.micro > testcases/tinygen/test_for_sample.out;
+tiny testcases/tinygen/test_for_sample.out < testcases/inputs5/test_for.input
+2.64575
+
+My Compiler
+java -cp lib/antlr.jar:classes/ Micro testcases/inputs5/test_for.micro > testcases/tinygen/test_for.out;
+tiny testcases/tinygen/test_for.out < testcases/inputs5/test_for.input
+2.64575
+************************************************************************************************************
+step4_testcase.micro
+
+Sample Solution
+java -cp lib/antlr.jar:step5.jar Micro testcases/inputs5/step4_testcase.micro > testcases/tinygen/step4_testcase_sample.out;
+tiny testcases/tinygen/step4_testcase_sample.out < testcases/inputs5/step4_testcase.input
+73
+
+My Compiler
+java -cp lib/antlr.jar:classes/ Micro testcases/inputs5/step4_testcase.micro > testcases/tinygen/step4_testcase.out;
+tiny testcases/tinygen/step4_testcase.out < testcases/inputs5/step4_testcase.input
+
+************************************************************************************************************
+step4_testcase2.micro
+Sample Solution
+java -cp lib/antlr.jar:step5.jar Micro testcases/inputs5/step4_testcase2.micro > testcases/tinygen/step4_testcase2_sample.out;
+tiny testcases/tinygen/step4_testcase2_sample.out < testcases/inputs5/step4_testcase2.input
+142123244
+
+My Compiler
+java -cp lib/antlr.jar:classes/ Micro testcases/inputs5/step4_testcase2.micro > testcases/tinygen/step4_testcase2.out;
+tiny testcases/tinygen/step4_testcase2.out < testcases/inputs5/step4_testcase2.input
+
+

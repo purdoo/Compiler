@@ -376,7 +376,7 @@ class IRNodeList
 					this.NodeList.add(new IRNode("STOREI", subBuilder.substring(i-left, i), "$T" + String.valueOf(this.TempCounter)));
 					subBuilder.delete(i-left, i);
 					subBuilder.insert(i-left, "$T" + String.valueOf(this.TempCounter));
-					System.out.println(subBuilder);
+					//System.out.println(subBuilder);
 					if(this.TempCounter < 10)
 					{
 						i += 2;
@@ -402,8 +402,8 @@ class IRNodeList
 					this.TempCounter ++;
 					right = CheckRightExpression(subBuilder, i);
 				}
-				System.out.println(subBuilder + "-> Left: " + left + " Right: " + right + " i: " + i);
-				System.out.println(subBuilder.substring(i-left, i) + " : " + subBuilder.substring(i+1, i+right));
+				//System.out.println(subBuilder + "-> Left: " + left + " Right: " + right + " i: " + i);
+				//System.out.println(subBuilder.substring(i-left, i) + " : " + subBuilder.substring(i+1, i+right));
 				this.NodeList.add(new IRNode("MULTI", subBuilder.substring(i-left, i), subBuilder.substring(i+1, i+right), "$T" + String.valueOf(this.TempCounter)));
 				subBuilder.delete(i-left, i+right);
 				subBuilder.insert(i-left, "$T"+String.valueOf(this.TempCounter));
@@ -650,7 +650,7 @@ class IRNodeList
 					this.NodeList.add(new IRNode("STOREF", subBuilder.substring(i-left, i), "$T" + String.valueOf(this.TempCounter)));
 					subBuilder.delete(i-left, i);
 					subBuilder.insert(i-left, "$T" + String.valueOf(this.TempCounter));
-					System.out.println("After reducing LHS: " + subBuilder);
+					//System.out.println("After reducing LHS: " + subBuilder);
 					if(this.TempCounter < 10)
 					{
 						i += 2;
@@ -668,20 +668,20 @@ class IRNodeList
 					left = CheckLeftExpression(subBuilder, i);
 				}
 				int right = CheckRightExpression(subBuilder, i);
-				System.out.println(subBuilder + ", " + right);
+				//System.out.println(subBuilder + ", " + right);
 				if(HelperFunctions.IsFloat(subBuilder.substring(i+1, i+right).toString()))
 				{
 					//System.out.println("RHS is float " + subBuilder.substring(i+1, i+right));
 					this.NodeList.add(new IRNode("STOREF", subBuilder.substring(i+1, i+right), "$T" + String.valueOf(this.TempCounter)));
 					subBuilder.delete(i+1, i+right);
 					subBuilder.insert(i+1, "$T" + String.valueOf(this.TempCounter));
-					System.out.println("After reducing RHS: " + subBuilder);
+					//System.out.println("After reducing RHS: " + subBuilder);
 					this.TempCounter ++;
 					right = CheckRightExpression(subBuilder, i);
 				}
-				System.out.println("SubBuilder: "+subBuilder);
-				System.out.println("Left: " + left + " Right: " + right + " i: " + i);
-				System.out.println(subBuilder.substring(i-left, i) + " : " + subBuilder.substring(i+1, i+right));
+				//System.out.println("SubBuilder: "+subBuilder);
+				//System.out.println("Left: " + left + " Right: " + right + " i: " + i);
+				//System.out.println(subBuilder.substring(i-left, i) + " : " + subBuilder.substring(i+1, i+right));
 				this.NodeList.add(new IRNode("MULTF", subBuilder.substring(i-left, i), subBuilder.substring(i+1, i+right), "$T" + String.valueOf(this.TempCounter)));
 				subBuilder.delete(i-left, i+right);
 				subBuilder.insert(i-left, "$T"+String.valueOf(this.TempCounter));
