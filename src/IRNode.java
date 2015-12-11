@@ -44,6 +44,10 @@ class IRNodeList
 						{
 							this.NodeList.add(new IRNode("WRITEF", s));
 						}
+						else if(SymbolLookup(s).equals("STRING"))
+						{
+							this.NodeList.add(new IRNode("WRITES", s));
+						}
 					}
 				}
 				else
@@ -55,6 +59,10 @@ class IRNodeList
 					else if(SymbolLookup(E.expr).equals("FLOAT"))
 					{
 						this.NodeList.add(new IRNode("WRITEF", E.expr));
+					}
+					else if(SymbolLookup(E.expr).equals("STRING"))
+					{
+						this.NodeList.add(new IRNode("WRITES", E.expr));
 					}
 				}
 			}
@@ -75,6 +83,10 @@ class IRNodeList
 						{
 							this.NodeList.add(new IRNode("READF", s));
 						}
+						else if(SymbolLookup(s).equals("FLOAT"))
+						{
+							this.NodeList.add(new IRNode("READS", s));
+						}
 					}
 				}
 				else
@@ -86,6 +98,10 @@ class IRNodeList
 					else if(SymbolLookup(E.expr).equals("FLOAT"))
 					{
 						this.NodeList.add(new IRNode("READF", E.expr));
+					}
+					else if(SymbolLookup(E.expr).equals("FLOAT"))
+					{
+						this.NodeList.add(new IRNode("READS", E.expr));
 					}
 				}
 			
@@ -106,14 +122,24 @@ class IRNodeList
 				{
 					rhs = exprBuilder.substring(opIndex+2, expr.length());
 				}
+				//System.out.println(rhs);
+				if(rhs.contains("(") && rhs.contains(")"))
+				{
+					//(0.0-tolerance)
+					//System.out.println("Complex found");
+				}
 				if(HelperFunctions.isInteger(rhs))
 				{
 					this.NodeList.add(new IRNode("STOREI", rhs, "$T" + String.valueOf(this.TempCounter)));
 				}
-				else
+				else //else if(HelperFunctions.IsFloat(rhs))
 				{
 					this.NodeList.add(new IRNode("STOREF", rhs, "$T" + String.valueOf(this.TempCounter)));
 				}
+				
+				
+				//this.LabelIndex ++;
+				//this.Labels.add(this.LabelCounter);
 				if(op == "<")
 				{
 					this.NodeList.add(new IRNode("GE", lhs, "$T" + String.valueOf(this.TempCounter), "label" + String.valueOf(this.LabelCounter)));
@@ -155,45 +181,37 @@ class IRNodeList
 				this.Labels.remove(this.LabelIndex);
 				this.LabelIndex --;
 			}
-
 			else if(E.id == "FOR")
 			{	
-				/* Get rid of the incr_stmt IR Nodes that are generated, place them in temporary holder */
-				//this.NodeList.remove()
-				//lastElement = strings.get(strings.size() - 1);
-				this.ReservedNodeList.add(this.NodeList.get(this.NodeList.size() - 1));
-				this.NodeList.remove(this.NodeList.size() - 1);
-				this.ReservedNodeList.add(this.NodeList.get(this.NodeList.size() - 1));
-				this.NodeList.remove(this.NodeList.size() - 1);
-				this.ReservedNodeList.add(this.NodeList.get(this.NodeList.size() - 1));
-				this.NodeList.remove(this.NodeList.size() - 1);
-				/* Do this three times */
-
 				String expr = E.expr.replaceAll("\\s","");
 				String[] parts = expr.split(",");
 				int lIndex = expr.indexOf(":");
 				int rIndex = expr.indexOf("=");
 				StringBuilder exprBuilder = new StringBuilder(parts[0]);
-				String lhs = exprBuilder.substring(0, lIndex);
-				String rhs = exprBuilder.substring(rIndex+1, parts[0].length());
-				//System.out.println("For Loop: " + lhs + ", " +  rhs);
-				if(HelperFunctions.isInteger(rhs))
+				String rhs = "";
+				this.ReservedNodeList.add(this.NodeList.get(this.NodeList.size() - 1));
+				this.NodeList.remove(this.NodeList.size() - 1);
+				this.ReservedNodeList.add(this.NodeList.get(this.NodeList.size() - 1));
+				this.NodeList.remove(this.NodeList.size() - 1);
+				if(exprBuilder.toString().equals(""))
 				{
-					//this.NodeList.add(new IRNode("STOREI", rhs, "$T" + String.valueOf(this.TempCounter)));
+					//System.out.println("Builder is empty");
 				}
 				else
 				{
-					//this.NodeList.add(new IRNode("STOREF", rhs, "$T" + String.valueOf(this.TempCounter)));
+					this.ReservedNodeList.add(this.NodeList.get(this.NodeList.size() - 1));
+					this.NodeList.remove(this.NodeList.size() - 1);
+					//String lhs = exprBuilder.substring(0, lIndex);
+					rhs = exprBuilder.substring(rIndex+1, parts[0].length());
 				}
-				
 				this.LabelIndex ++;
 				this.Labels.add(this.LabelCounter);
-				this.LabelCounter += 2;
+				this.LabelCounter += 3;
 				this.NodeList.add(new IRNode("LABEL", "label" + String.valueOf(this.Labels.get(this.LabelIndex))));
 				exprBuilder = new StringBuilder(parts[1]);
-				//System.out.println("For Loop: " + parts[1]);
 				String op = this.FindCompOp(parts[1]);
 				int opIndex = parts[1].indexOf(op);
+				String lhs = exprBuilder.substring(0, opIndex);
 				if(op.length() == 1)
 				{
 					rhs = exprBuilder.substring(opIndex+1, parts[1].length());
@@ -212,33 +230,32 @@ class IRNodeList
 				}
 				if(op == "<")
 				{
-					this.NodeList.add(new IRNode("GE", lhs, "$T" + String.valueOf(this.TempCounter), "label" + String.valueOf(this.LabelCounter)));
+					this.NodeList.add(new IRNode("GE", lhs, "$T" + String.valueOf(this.TempCounter), "label" + String.valueOf(this.Labels.get(this.LabelIndex)+2)));
 				}
 				else if(op == ">")
 				{
-					this.NodeList.add(new IRNode("LE", lhs, "$T" + String.valueOf(this.TempCounter), "label" + String.valueOf(this.LabelCounter)));
+					this.NodeList.add(new IRNode("LE", lhs, "$T" + String.valueOf(this.TempCounter), "label" + String.valueOf(this.Labels.get(this.LabelIndex)+2)));
 				}
 				else if(op == "=")
 				{
-					this.NodeList.add(new IRNode("NE", lhs, "$T" + String.valueOf(this.TempCounter), "label" + String.valueOf(this.LabelCounter)));
+					this.NodeList.add(new IRNode("NE", lhs, "$T" + String.valueOf(this.TempCounter), "label" + String.valueOf(this.Labels.get(this.LabelIndex)+2)));
 				}
 				else if(op == "!=")
 				{
-					this.NodeList.add(new IRNode("EQ", lhs, "$T" + String.valueOf(this.TempCounter), "label" + String.valueOf(this.LabelCounter)));
+					this.NodeList.add(new IRNode("EQ", lhs, "$T" + String.valueOf(this.TempCounter), "label" + String.valueOf(this.Labels.get(this.LabelIndex)+2)));
 				}
 				else if(op == "<=")
 				{
-					this.NodeList.add(new IRNode("GT", lhs, "$T" + String.valueOf(this.TempCounter), "label" + String.valueOf(this.LabelCounter)));
+					this.NodeList.add(new IRNode("GT", lhs, "$T" + String.valueOf(this.TempCounter), "label" + String.valueOf(this.Labels.get(this.LabelIndex)+2)));
 				}
 				else if(op == ">=")
 				{
-					this.NodeList.add(new IRNode("LT", lhs, "$T" + String.valueOf(this.TempCounter), "label" + String.valueOf(this.LabelCounter)));
+					this.NodeList.add(new IRNode("LT", lhs, "$T" + String.valueOf(this.TempCounter), "label" + String.valueOf(this.Labels.get(this.LabelIndex)+2)));
 				}
 				this.TempCounter++;
 			}
 			else if(E.id == "CONT")
 			{
-				//System.out.println("Cont For Loop Found: " + E.expr);
 				this.NodeList.add(new IRNode("LABEL", "label" + String.valueOf(this.Labels.get(this.LabelIndex) + 1)));
 				Collections.reverse(this.ReservedNodeList);
 				while(!this.ReservedNodeList.isEmpty())

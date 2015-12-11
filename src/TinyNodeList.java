@@ -140,6 +140,10 @@ public class TinyNodeList
 			{
 				this.AddTinyNode("sys writer " + irn.Result);
 			}
+			else if(irn.OpCode == "WRITES")
+			{
+				this.AddTinyNode("sys writes " + irn.Result);
+			}
 			else if(irn.OpCode == "JUMP")
 			{
 				this.AddTinyNode("jmp " + irn.Result);

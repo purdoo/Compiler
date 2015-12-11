@@ -1,1 +1,72 @@
-DECLARATION ERROR n
+;IR code
+;STOREI 0 $T1
+;STOREI $T1 i
+;STOREI 0 $T2
+;STOREI $T2 a
+;STOREI 0 $T3
+;STOREI $T3 b
+;STOREI 1 $T4
+;LABEL label1
+;STOREI 10 $T6
+;EQ i $T6 label3
+;READI p
+;STOREI 10 $T7
+;LE p $T7 label4
+;STOREI 1 $T8
+;ADDI a $T8 $T9
+;STOREI $T9 a
+;JUMP label5
+;LABEL label4
+;STOREI 1 $T10
+;ADDI b $T10 $T11
+;STOREI $T11 b
+;JUMP label5
+;LABEL label5
+;LABEL label2
+;ADDI i $T4 $T5
+;STOREI $T5 i
+;JUMP label1
+;LABEL label3
+;WRITEI a
+;WRITEI b
+;tiny code
+var a
+var b
+var i
+var p
+move 0 r0
+move r0 i
+move 0 r1
+move r1 a
+move 0 r2
+move r2 b
+move 1 r3
+label label1
+move 10 r5
+cmpi i r5
+jeq label3
+sys readi p
+move 10 r6
+cmpi p r6
+jle label4
+move 1 r7
+move a r8
+addi r7 r8
+move r8 a
+jmp label5
+label label4
+move 1 r9
+move b r10
+addi r9 r10
+move r10 b
+jmp label5
+label label5
+label label2
+move i r4
+addi r3 r4
+move r4 i
+jmp label1
+label label3
+sys writei a
+sys writei b
+sys halt

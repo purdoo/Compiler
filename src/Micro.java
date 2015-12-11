@@ -28,8 +28,6 @@ public class Micro {
 			parser.program();
 			parser.STACK.AddTable(parser.TABLE); // add last symbol table
 			IRNodeList irlist = new IRNodeList(parser.EI, parser.STACK);
-			//irlist.PrintExprList();
-			//irlist.STS.PrintStack();
 			System.out.println(";IR code");
 			irlist.PrintNodeList();
 			System.out.println(";tiny code");
