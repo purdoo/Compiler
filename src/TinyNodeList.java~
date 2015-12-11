@@ -7,6 +7,7 @@ public class TinyNodeList
 	SymbolTableStack STS;
 	IRNodeList IR;
 	List<String> vars = new ArrayList<String>();
+	List<String> strs = new ArrayList<String>();
 	TinyNode head;
 	TinyNode tail;
 	
@@ -26,22 +27,44 @@ public class TinyNodeList
 		}
 	}
 
+	public String SymbolLookup(String SymbolName)
+	{
+		for(SymbolTable ST : this.STS.SymbolTables)
+		{
+			for(Symbol S : ST.SYMBOLS)
+			{
+				if(S.var_name.equals(SymbolName))
+				{
+					return S.var_type;
+				}
+			}
+		}
+		return "Symbol Not Found";
+	}
+
 	public void GetVariables()
 	{
 		for(SymbolTable ST : this.STS.SymbolTables)
 		{
 			for(Symbol S : ST.SYMBOLS)
 			{
-				//System.out.println("Symbol: " + S.var_name);
-				if(!this.vars.contains(S.var_name))
+				if(!this.vars.contains(S.var_name) && !S.var_type.equals("STRING"))
 				{
 					this.vars.add(S.var_name);
+				}
+				if(S.var_type.equals("STRING"))
+				{
+					this.strs.add(S.var_name + " \"" + S.Value + "\"");
 				}
 			}
 		}
 		for(String s : this.vars)
 		{
 			this.AddTinyNode("var " + s);
+		}
+		for(String s : this.strs)
+		{
+			this.AddTinyNode("str " + s);
 		}
 	}
 
@@ -142,7 +165,7 @@ public class TinyNodeList
 			}
 			else if(irn.OpCode == "WRITES")
 			{
-				this.AddTinyNode("sys writer " + irn.Result);
+				this.AddTinyNode("sys writes " + irn.Result);
 			}
 			else if(irn.OpCode == "JUMP")
 			{
@@ -150,33 +173,81 @@ public class TinyNodeList
 			}
 			else if(irn.OpCode == "GE")
 			{
-				this.AddTinyNode("cmpi " + this.CheckReg(irn.FirstOperand) + " " + this.CheckReg(irn.SecondOperand));
-				this.AddTinyNode("jge " + irn.Result);
+				if(this.SymbolLookup(irn.FirstOperand).equals("INT") || this.SymbolLookup(irn.SecondOperand).equals("INT"))
+				{
+					this.AddTinyNode("cmpi " + this.CheckReg(irn.FirstOperand) + " " + this.CheckReg(irn.SecondOperand));
+					this.AddTinyNode("jge " + irn.Result);
+				}
+				else if(this.SymbolLookup(irn.FirstOperand).equals("FLOAT") || this.SymbolLookup(irn.SecondOperand).equals("FLOAT"))
+				{
+					this.AddTinyNode("cmpr " + this.CheckReg(irn.FirstOperand) + " " + this.CheckReg(irn.SecondOperand));
+					this.AddTinyNode("jge " + irn.Result);
+				}
 			}
 			else if(irn.OpCode == "LE") // **
 			{
-				this.AddTinyNode("cmpi " + this.CheckReg(irn.FirstOperand) + " " + this.CheckReg(irn.SecondOperand));
-				this.AddTinyNode("jle " + irn.Result);
+				if(this.SymbolLookup(irn.FirstOperand).equals("INT") || this.SymbolLookup(irn.SecondOperand).equals("INT"))
+				{
+					this.AddTinyNode("cmpi " + this.CheckReg(irn.FirstOperand) + " " + this.CheckReg(irn.SecondOperand));
+					this.AddTinyNode("jle " + irn.Result);
+				}
+				else if(this.SymbolLookup(irn.FirstOperand).equals("FLOAT") || this.SymbolLookup(irn.SecondOperand).equals("FLOAT"))
+				{
+					this.AddTinyNode("cmpr " + this.CheckReg(irn.FirstOperand) + " " + this.CheckReg(irn.SecondOperand));
+					this.AddTinyNode("jle " + irn.Result);
+				}
 			}
 			else if(irn.OpCode == "NE") // **
 			{
-				this.AddTinyNode("cmpi " + this.CheckReg(irn.FirstOperand) + " " + this.CheckReg(irn.SecondOperand));
-				this.AddTinyNode("jne " + irn.Result);
+				if(this.SymbolLookup(irn.FirstOperand).equals("INT") || this.SymbolLookup(irn.SecondOperand).equals("INT"))
+				{
+					this.AddTinyNode("cmpi " + this.CheckReg(irn.FirstOperand) + " " + this.CheckReg(irn.SecondOperand));
+					this.AddTinyNode("jne " + irn.Result);
+				}
+				else if(this.SymbolLookup(irn.FirstOperand).equals("FLOAT") || this.SymbolLookup(irn.SecondOperand).equals("FLOAT"))
+				{
+					this.AddTinyNode("cmpr " + this.CheckReg(irn.FirstOperand) + " " + this.CheckReg(irn.SecondOperand));
+					this.AddTinyNode("jne " + irn.Result);
+				}
 			}
 			else if(irn.OpCode == "EQ") // **
 			{
-				this.AddTinyNode("cmpi " + this.CheckReg(irn.FirstOperand) + " " + this.CheckReg(irn.SecondOperand));
-				this.AddTinyNode("jeq " + irn.Result);
+				if(this.SymbolLookup(irn.FirstOperand).equals("INT") || this.SymbolLookup(irn.SecondOperand).equals("INT"))
+				{
+					this.AddTinyNode("cmpi " + this.CheckReg(irn.FirstOperand) + " " + this.CheckReg(irn.SecondOperand));
+					this.AddTinyNode("jeq " + irn.Result);
+				}
+				else if(this.SymbolLookup(irn.FirstOperand).equals("FLOAT") || this.SymbolLookup(irn.SecondOperand).equals("FLOAT"))
+				{
+					this.AddTinyNode("cmpr " + this.CheckReg(irn.FirstOperand) + " " + this.CheckReg(irn.SecondOperand));
+					this.AddTinyNode("jeq " + irn.Result);
+				}
 			}
 			else if(irn.OpCode == "GT") // **
 			{
-				this.AddTinyNode("cmpi " + this.CheckReg(irn.FirstOperand) + " " + this.CheckReg(irn.SecondOperand));
-				this.AddTinyNode("jgt " + irn.Result);
+				if(this.SymbolLookup(irn.FirstOperand).equals("INT") || this.SymbolLookup(irn.SecondOperand).equals("INT"))
+				{
+					this.AddTinyNode("cmpi " + this.CheckReg(irn.FirstOperand) + " " + this.CheckReg(irn.SecondOperand));
+					this.AddTinyNode("jgt " + irn.Result);
+				}
+				else if(this.SymbolLookup(irn.FirstOperand).equals("FLOAT") || this.SymbolLookup(irn.SecondOperand).equals("FLOAT"))
+				{
+					this.AddTinyNode("cmpr " + this.CheckReg(irn.FirstOperand) + " " + this.CheckReg(irn.SecondOperand));
+					this.AddTinyNode("jgt " + irn.Result);
+				}
 			}
 			else if(irn.OpCode == "LT")
 			{
-				this.AddTinyNode("cmpi " + this.CheckReg(irn.FirstOperand) + " " + this.CheckReg(irn.SecondOperand));
-				this.AddTinyNode("jlt " + irn.Result);
+				if(this.SymbolLookup(irn.FirstOperand).equals("INT") || this.SymbolLookup(irn.SecondOperand).equals("INT"))
+				{
+					this.AddTinyNode("cmpi " + this.CheckReg(irn.FirstOperand) + " " + this.CheckReg(irn.SecondOperand));
+					this.AddTinyNode("jlt " + irn.Result);
+				}
+				else if(this.SymbolLookup(irn.FirstOperand).equals("FLOAT") || this.SymbolLookup(irn.SecondOperand).equals("FLOAT"))
+				{
+					this.AddTinyNode("cmpr " + this.CheckReg(irn.FirstOperand) + " " + this.CheckReg(irn.SecondOperand));
+					this.AddTinyNode("jlt " + irn.Result);
+				}
 			}
 
 			else if(irn.OpCode == "LABEL")

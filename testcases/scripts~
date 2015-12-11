@@ -74,10 +74,11 @@ tiny testcases/tinygen/step4_testcase2.out < testcases/inputs5/step4_testcase2.i
 test_adv.micro
 java -cp lib/antlr.jar:step5.jar Micro testcases/inputs5/test_adv.micro > testcases/tinygen/test_adv_sample.out;
 tiny testcases/tinygen/test_adv_sample.out < testcases/inputs5/test_adv.input
+2.72029 5
 
 My Compiler
 java -cp lib/antlr.jar:classes/ Micro testcases/inputs5/test_adv.micro > testcases/tinygen/test_adv.out;
 tiny testcases/tinygen/test_adv.out < testcases/inputs5/test_adv.input
-
+2.72029 6
 ************************************************************************************************************
 

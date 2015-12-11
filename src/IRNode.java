@@ -126,20 +126,28 @@ class IRNodeList
 				if(rhs.contains("(") && rhs.contains(")"))
 				{
 					//(0.0-tolerance)
-					//System.out.println("Complex found");
+					String reduced;
+					StringBuilder builder = new StringBuilder(rhs);
+					while(HelperFunctions.CountOccurancesOf('(', builder) != 0)
+					{
+						int open = builder.indexOf("(");
+						int close = builder.indexOf(")");
+						StringBuilder subBuilder = new StringBuilder(builder.substring(open+1,close));
+						reduced = ReduceF(subBuilder);
+						builder.replace(open, close+1, reduced);
+						this.TempCounter -= 1;
+					}
+					//rhs = builder.toString();
+					//System.out.println(rhs);
 				}
 				if(HelperFunctions.isInteger(rhs))
 				{
 					this.NodeList.add(new IRNode("STOREI", rhs, "$T" + String.valueOf(this.TempCounter)));
 				}
-				else //else if(HelperFunctions.IsFloat(rhs))
+				else if(HelperFunctions.IsFloat(rhs))
 				{
 					this.NodeList.add(new IRNode("STOREF", rhs, "$T" + String.valueOf(this.TempCounter)));
 				}
-				
-				
-				//this.LabelIndex ++;
-				//this.Labels.add(this.LabelCounter);
 				if(op == "<")
 				{
 					this.NodeList.add(new IRNode("GE", lhs, "$T" + String.valueOf(this.TempCounter), "label" + String.valueOf(this.LabelCounter)));
@@ -189,18 +197,30 @@ class IRNodeList
 				int rIndex = expr.indexOf("=");
 				StringBuilder exprBuilder = new StringBuilder(parts[0]);
 				String rhs = "";
-				this.ReservedNodeList.add(this.NodeList.get(this.NodeList.size() - 1));
-				this.NodeList.remove(this.NodeList.size() - 1);
-				this.ReservedNodeList.add(this.NodeList.get(this.NodeList.size() - 1));
-				this.NodeList.remove(this.NodeList.size() - 1);
-				if(exprBuilder.toString().equals(""))
+				if(parts.length == 3)
 				{
-					//System.out.println("Builder is empty");
+					
+					this.ReservedNodeList.add(this.NodeList.get(this.NodeList.size() - 1));
+					this.NodeList.remove(this.NodeList.size() - 1);
+					this.ReservedNodeList.add(this.NodeList.get(this.NodeList.size() - 1));
+					this.NodeList.remove(this.NodeList.size() - 1);
+					this.ReservedNodeList.add(this.NodeList.get(this.NodeList.size() - 1));
+					this.NodeList.remove(this.NodeList.size() - 1);
 				}
 				else
 				{
-					this.ReservedNodeList.add(this.NodeList.get(this.NodeList.size() - 1));
-					this.NodeList.remove(this.NodeList.size() - 1);
+					//System.out.println("no increment statement in for loop");
+				}
+				if(exprBuilder.toString().equals(""))
+				{
+					//System.out.println("Builder is empty");
+					//this.ReservedNodeList.add(this.NodeList.get(this.NodeList.size() - 1));
+					//this.NodeList.remove(this.NodeList.size() - 1);
+				}
+				else
+				{
+					//this.ReservedNodeList.add(this.NodeList.get(this.NodeList.size() - 1));
+					//this.NodeList.remove(this.NodeList.size() - 1);
 					//String lhs = exprBuilder.substring(0, lIndex);
 					rhs = exprBuilder.substring(rIndex+1, parts[0].length());
 				}
