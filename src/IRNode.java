@@ -148,6 +148,18 @@ class IRNodeList
 				{
 					this.NodeList.add(new IRNode("STOREF", rhs, "$T" + String.valueOf(this.TempCounter)));
 				}
+				else
+				{
+					String s = this.SymbolLookup(rhs);
+					if(s.equals("INT"))
+					{
+						this.NodeList.add(new IRNode("STOREI", rhs, "$T" + String.valueOf(this.TempCounter)));
+					}
+					else if(s.equals("FLOAT"))
+					{
+						this.NodeList.add(new IRNode("STOREF", rhs, "$T" + String.valueOf(this.TempCounter)));
+					}
+				}
 				if(op == "<")
 				{
 					this.NodeList.add(new IRNode("GE", lhs, "$T" + String.valueOf(this.TempCounter), "label" + String.valueOf(this.LabelCounter)));

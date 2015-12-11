@@ -25,6 +25,7 @@
 ;STOREF $T13 diff
 ;STOREF 0.0 $T14
 ;LE diff $T14 label4
+;STOREF tolerance $T15
 ;GE diff $T15 label6
 ;STOREI 1 $T16
 ;STOREI $T16 enough
@@ -97,6 +98,7 @@ move r12 diff
 move 0.0 r13
 cmpr diff r13
 jle label4
+move tolerance r14
 cmpr diff r14
 jge label6
 move 1 r15

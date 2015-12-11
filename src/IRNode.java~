@@ -135,6 +135,7 @@ class IRNodeList
 						StringBuilder subBuilder = new StringBuilder(builder.substring(open+1,close));
 						reduced = ReduceF(subBuilder);
 						builder.replace(open, close+1, reduced);
+						this.TempCounter -= 1;
 					}
 					//rhs = builder.toString();
 					//System.out.println(rhs);
@@ -146,6 +147,18 @@ class IRNodeList
 				else if(HelperFunctions.IsFloat(rhs))
 				{
 					this.NodeList.add(new IRNode("STOREF", rhs, "$T" + String.valueOf(this.TempCounter)));
+				}
+				else
+				{
+					String s = this.SymbolLookup(rhs);
+					if(s.equals("INT"))
+					{
+			
+					}
+					else if(s.equals("FLOAT"))
+					{
+						this.NodeList.add(new IRNode("STOREF", rhs, "$T" + String.valueOf(this.TempCounter)));
+					}
 				}
 				if(op == "<")
 				{
