@@ -38,6 +38,7 @@ var_decl: var_type id_list
 {
 	String[] vars = $id_list.text.split(",");
 	TABLE.Add($var_type.text, vars);
+	TABLE.AddLocal(vars);
 } 
 ';';
 var_type: 'FLOAT' | 'INT';
@@ -51,6 +52,7 @@ param_decl_list: param_decl param_decl_tail | ;
 param_decl: var_type id
 {
 	TABLE.Add($id.text, $var_type.text);
+	TABLE.AddParam($id.text);
 };
 param_decl_tail: ',' param_decl param_decl_tail | ;
 
@@ -62,7 +64,18 @@ func_decl: 'FUNCTION' any_type id
 	STACK.AddTable(TABLE); 
 	TABLE = new SymbolTable($id.text);
 }
-'(' param_decl_list ')' 'BEGIN' func_body 'END';
+'(' param_decl_list ')' 
+{
+	//Expr E = new Expr("FUNCTION" + ";" + $any_type.text + ";" + $id.text, $param_decl_list.text);
+	Expr E = new Expr("FUNCTION", $any_type.text + ";" + $id.text);
+	//Expr E = new Expr("FUNCTION", $any_type.text + ";" + $id.text + ";" + $param_decl_list.text);
+	EI.AddExpr(E);
+}
+'BEGIN' func_body 'END'
+{
+	E = new Expr("END_FUNCTION", $id.text);
+	EI.AddExpr(E);
+};
 
 func_body: decl stmt_list ;
 
@@ -90,7 +103,10 @@ write_stmt: 'WRITE' '(' id_list ')' ';'
 	EI.AddExpr(E);
 };
 
-return_stmt: 'RETURN' expr ';';
+return_stmt: 'RETURN' expr ';'
+{
+	TABLE.ReturnValue = $expr.text;
+};
 
 /* Expressions */
 expr: expr_prefix factor;
@@ -107,7 +123,7 @@ mulop: '*' | '/';
 
 /* Complex Statements and Conditions */ 
 if_stmt: 'IF' 
-{
+{ 
 	STACK.AddTable(TABLE);
 	TABLE = new SymbolTable();
 }

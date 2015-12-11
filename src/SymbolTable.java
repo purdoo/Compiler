@@ -42,7 +42,11 @@ class SymbolTable
 {
 	public String Scope;
 	public List<Symbol> SYMBOLS = new ArrayList<Symbol>();
-
+	public List<String> Parameters = new ArrayList<String>();
+	public List<String> Locals = new ArrayList<String>();
+  //public HashMap<String, Integer> Parameters = new HashMap<String, Integer>();
+	//public HashMap<String, Integer> Locals = new HashMap<String, Integer>();
+	public String ReturnValue = "";
 	public SymbolTable()
 	{
 		this.Scope = "BLOCK " + SymbolTableStack.BlockCount;
@@ -53,13 +57,26 @@ class SymbolTable
 	{
 		this.Scope = Scope;
 	}
+
+	public void AddParam(String name)
+	{
+		this.Parameters.add(name);
+	}
+
+	public void AddLocal(String[] vars)
+	{
+		for(String var : vars)
+		{
+			this.Locals.add(var);
+		}
+	}
 	
 	public void Add(String var_type, String[] vars)
 	{
 		for(String var : vars)
 		{
 			this.SYMBOLS.add(new Symbol(var, var_type));
-		}		
+		}
 	}
 
 	public void Add(String var_name, String var_type)

@@ -10,11 +10,15 @@ class IRNodeList
 
 	/* For Label Generation and Tracking */
 	public int TempCounter = 1;
-	//public int[] Labels;
+	public int LocalCounter = 1;
+
 	public ArrayList<Integer> Labels = new ArrayList<>();
 	public int LabelCounter = 1;
 	public int LabelIndex = -1;
 	public int LabelIndexRef = 0;
+	public int FunctionCount = 0;
+	public String CurrentFunction = "";
+	
 
 	public IRNodeList(ExprInterpreter EI, SymbolTableStack STS)
 	{
@@ -27,7 +31,49 @@ class IRNodeList
 	{
 		for(Expr E : this.ExprList)
 		{
-			if(E.id == "WRITE") 
+			if(E.id == "FUNCTION")
+			{
+				this.TempCounter = 1; // maybe
+				this.LocalCounter = 1;
+				this.FunctionCount += 1;
+				String[] temp;
+				temp = E.expr.split(";");
+				this.CurrentFunction = temp[1];
+				if(!(this.FunctionCount == 1 && temp[1].equals("main")))
+				{
+					this.NodeList.add(new IRNode("LABEL", temp[1]));
+					this.NodeList.add(new IRNode("LINK", ""));
+					/*
+					for(SymbolTable ST : this.STS.SymbolTables)
+					{
+						if(ST.Scope.equals(temp[1]))
+						{
+							for(String S : ST.Parameters)
+							{
+								System.out.println(S);
+							}
+						}
+					}*/
+				}
+			}
+			if(E.id == "END_FUNCTION")
+			{
+				if(!(this.FunctionCount == 1 && this.CurrentFunction.equals("main")))
+				{
+					
+					for(SymbolTable ST : this.STS.SymbolTables)
+					{
+						if(ST.Scope.equals(this.CurrentFunction))
+						{
+							this.NodeList.add(new IRNode("STOREF", ST.ReturnValue, "$R"));
+						}
+					}
+					//System.out.println(this.NodeList.get(list.size() - 1));
+					this.NodeList.add(new IRNode("RET", ""));
+					this.NodeList.add(new IRNode("", ""));
+				}
+			}
+			if(E.id == "WRITE")
 			{
 				// need to accomodate having multiple variables to write in one call
 				if(E.expr.indexOf(",") != -1)
@@ -36,34 +82,56 @@ class IRNodeList
 					List<String> writeVarsList = Arrays.asList(writeVars.split(","));
 					for(String s : writeVarsList)
 					{
-						if(SymbolLookup(s).equals("INT"))
+						if(!(this.FunctionCount == 1 && this.CurrentFunction.equals("main")))
 						{
-							this.NodeList.add(new IRNode("WRITEI", s));
+							if(SymbolLookup(s).equals("STRING"))
+							{
+								this.NodeList.add(new IRNode("WRITES", s));
+							}
 						}
-						else if(SymbolLookup(s).equals("FLOAT"))
+						else
 						{
-							this.NodeList.add(new IRNode("WRITEF", s));
+							if(SymbolLookup(s).equals("INT"))
+							{
+								this.NodeList.add(new IRNode("WRITEI", s));
+							}
+							else if(SymbolLookup(s).equals("FLOAT"))
+							{
+								this.NodeList.add(new IRNode("WRITEF", s));
+							}
+							else if(SymbolLookup(s).equals("STRING"))
+							{
+								this.NodeList.add(new IRNode("WRITES", s));
+							}
 						}
-						else if(SymbolLookup(s).equals("STRING"))
-						{
-							this.NodeList.add(new IRNode("WRITES", s));
-						}
+
 					}
 				}
 				else
 				{
-					if(SymbolLookup(E.expr).equals("INT"))
+					if(!(this.FunctionCount == 1 && this.CurrentFunction.equals("main")))
 					{
-						this.NodeList.add(new IRNode("WRITEI", E.expr));
+						if(SymbolLookup(E.expr).equals("STRING"))
+						{
+							this.NodeList.add(new IRNode("WRITES", E.expr));
+						}
 					}
-					else if(SymbolLookup(E.expr).equals("FLOAT"))
+					else
 					{
-						this.NodeList.add(new IRNode("WRITEF", E.expr));
+						if(SymbolLookup(E.expr).equals("INT"))
+						{
+							this.NodeList.add(new IRNode("WRITEI", E.expr));
+						}
+						else if(SymbolLookup(E.expr).equals("FLOAT"))
+						{
+							this.NodeList.add(new IRNode("WRITEF", E.expr));
+						}
+						else if(SymbolLookup(E.expr).equals("STRING"))
+						{
+							this.NodeList.add(new IRNode("WRITES", E.expr));
+						}
 					}
-					else if(SymbolLookup(E.expr).equals("STRING"))
-					{
-						this.NodeList.add(new IRNode("WRITES", E.expr));
-					}
+
 				}
 			}
 			else if(E.id == "READ")
@@ -75,33 +143,66 @@ class IRNodeList
 					List<String> writeVarsList = Arrays.asList(writeVars.split(","));
 					for(String s : writeVarsList)
 					{
-						if(SymbolLookup(s).equals("INT"))
+						if(!(this.FunctionCount == 1 && this.CurrentFunction.equals("main")))
 						{
-							this.NodeList.add(new IRNode("READI", s));
+							if(SymbolLookup(E.expr).equals("INT"))
+							{
+								this.NodeList.add(new IRNode("READI", "$L" + String.valueOf(this.LocalCounter)));
+								this.LocalCounter ++;
+							}
+							else if(SymbolLookup(E.expr).equals("FLOAT"))
+							{
+								this.NodeList.add(new IRNode("READF", "$L" + String.valueOf(this.LocalCounter)));
+								this.LocalCounter ++;
+							}
 						}
-						else if(SymbolLookup(s).equals("FLOAT"))
+						else
 						{
-							this.NodeList.add(new IRNode("READF", s));
+							if(SymbolLookup(s).equals("INT"))
+							{
+								this.NodeList.add(new IRNode("READI", s));
+							}
+							else if(SymbolLookup(s).equals("FLOAT"))
+							{
+								this.NodeList.add(new IRNode("READF", s));
+							}
+							else if(SymbolLookup(s).equals("FLOAT"))
+							{
+								this.NodeList.add(new IRNode("READS", s));
+							}
 						}
-						else if(SymbolLookup(s).equals("FLOAT"))
-						{
-							this.NodeList.add(new IRNode("READS", s));
-						}
+
 					}
 				}
 				else
 				{
-					if(SymbolLookup(E.expr).equals("INT"))
+					if(!(this.FunctionCount == 1 && this.CurrentFunction.equals("main")))
 					{
-						this.NodeList.add(new IRNode("READI", E.expr));
+						if(SymbolLookup(E.expr).equals("INT"))
+						{
+							this.NodeList.add(new IRNode("READI", "$L" + String.valueOf(this.LocalCounter)));
+							this.LocalCounter ++;
+						}
+						else if(SymbolLookup(E.expr).equals("FLOAT"))
+						{
+							this.NodeList.add(new IRNode("READF", "$L" + String.valueOf(this.LocalCounter)));
+							this.LocalCounter ++;
+						}
 					}
-					else if(SymbolLookup(E.expr).equals("FLOAT"))
+					else
 					{
-						this.NodeList.add(new IRNode("READF", E.expr));
-					}
-					else if(SymbolLookup(E.expr).equals("FLOAT"))
-					{
-						this.NodeList.add(new IRNode("READS", E.expr));
+						if(SymbolLookup(E.expr).equals("INT"))
+						{
+							this.NodeList.add(new IRNode("READI", E.expr));
+						}
+						else if(SymbolLookup(E.expr).equals("FLOAT"))
+						{
+							this.NodeList.add(new IRNode("READF", E.expr));
+						}
+						else if(SymbolLookup(E.expr).equals("FLOAT"))
+						{
+							this.NodeList.add(new IRNode("READS", E.expr));
+						}
 					}
 				}
 			
@@ -153,7 +254,7 @@ class IRNodeList
 					String s = this.SymbolLookup(rhs);
 					if(s.equals("INT"))
 					{
-			
+						this.NodeList.add(new IRNode("STOREI", rhs, "$T" + String.valueOf(this.TempCounter)));
 					}
 					else if(s.equals("FLOAT"))
 					{
@@ -309,7 +410,27 @@ class IRNodeList
 			{
 				if(HelperFunctions.ExpressionType(E.expr) == 0) // assign function
 				{
-					if(SymbolLookup(E.id).equals("INT"))
+					//System.out.println(E.expr); Liow
+					if(E.expr.contains("(") && E.expr.contains(")"))
+					{
+						String[] temp;
+						temp = E.expr.split("\\(");
+						// need to push here
+						this.NodeList.add(new IRNode("PUSH", ""));
+						/*
+						for(SymbolTable ST : this.STS.SymbolTables)
+						{
+							if(ST.Scope.equals(temp[0]))
+							{
+								for(Symbol S : ST.SYMBOLS)
+								{
+									System.out.println(S.var_name);
+								}
+							}
+						}*/
+						this.NodeList.add(new IRNode("JSR", temp[0]));
+					}
+					else if(SymbolLookup(E.id).equals("INT"))
 					{
 						this.NodeList.add(new IRNode("STOREI", E.expr, "$T" + String.valueOf(this.TempCounter)));
 						this.NodeList.add(new IRNode("STOREI", "$T" + String.valueOf(this.TempCounter), E.id));
@@ -451,8 +572,6 @@ class IRNodeList
 					this.TempCounter ++;
 					right = CheckRightExpression(subBuilder, i);
 				}
-				//System.out.println(subBuilder + "-> Left: " + left + " Right: " + right + " i: " + i);
-				//System.out.println(subBuilder.substring(i-left, i) + " : " + subBuilder.substring(i+1, i+right));
 				this.NodeList.add(new IRNode("MULTI", subBuilder.substring(i-left, i), subBuilder.substring(i+1, i+right), "$T" + String.valueOf(this.TempCounter)));
 				subBuilder.delete(i-left, i+right);
 				subBuilder.insert(i-left, "$T"+String.valueOf(this.TempCounter));
@@ -717,23 +836,64 @@ class IRNodeList
 					left = CheckLeftExpression(subBuilder, i);
 				}
 				int right = CheckRightExpression(subBuilder, i);
-				//System.out.println(subBuilder + ", " + right);
 				if(HelperFunctions.IsFloat(subBuilder.substring(i+1, i+right).toString()))
 				{
-					//System.out.println("RHS is float " + subBuilder.substring(i+1, i+right));
 					this.NodeList.add(new IRNode("STOREF", subBuilder.substring(i+1, i+right), "$T" + String.valueOf(this.TempCounter)));
 					subBuilder.delete(i+1, i+right);
 					subBuilder.insert(i+1, "$T" + String.valueOf(this.TempCounter));
-					//System.out.println("After reducing RHS: " + subBuilder);
 					this.TempCounter ++;
 					right = CheckRightExpression(subBuilder, i);
 				}
-				//System.out.println("SubBuilder: "+subBuilder);
-				//System.out.println("Left: " + left + " Right: " + right + " i: " + i);
-				//System.out.println(subBuilder.substring(i-left, i) + " : " + subBuilder.substring(i+1, i+right));
-				this.NodeList.add(new IRNode("MULTF", subBuilder.substring(i-left, i), subBuilder.substring(i+1, i+right), "$T" + String.valueOf(this.TempCounter)));
-				subBuilder.delete(i-left, i+right);
-				subBuilder.insert(i-left, "$T"+String.valueOf(this.TempCounter));
+				if(!(this.FunctionCount == 1 && this.CurrentFunction.equals("main")))
+				{
+					for(SymbolTable ST : this.STS.SymbolTables)
+					{
+						if(ST.Scope.equals(this.CurrentFunction))
+						{
+							int paramIndex = 1;
+							for(String S : ST.Parameters)
+							{
+								if(S.equals(subBuilder.substring(i-left, i)))
+								{
+									subBuilder.delete(i-left, i);
+									subBuilder.insert(i-left, "$P"+String.valueOf(paramIndex));
+									
+									if(paramIndex < 10)
+									{
+										i += 2;
+									}
+									else if(paramIndex < 100)
+									{
+										i += 3;
+									}
+									else if(paramIndex < 1000)
+									{
+										i += 4;
+									}
+									i -= (left-1);
+									left = CheckLeftExpression(subBuilder, i);
+								}
+								if(S.equals(subBuilder.substring(i+1, i+right)))
+								{
+									subBuilder.delete(i+1, i+right);
+									subBuilder.insert(i+1, "$P"+String.valueOf(paramIndex));
+									right = CheckRightExpression(subBuilder, i);
+								}
+								paramIndex ++;
+							}
+						}
+					}
+					this.NodeList.add(new IRNode("MULTF", subBuilder.substring(i-left, i), subBuilder.substring(i+1, i+right), "$T" + String.valueOf(this.TempCounter))); 
+					subBuilder.delete(i-left, i+right);
+					subBuilder.insert(i-left, "$T"+String.valueOf(this.TempCounter));
+					
+				}
+				else
+				{
+					this.NodeList.add(new IRNode("MULTF", subBuilder.substring(i-left, i), subBuilder.substring(i+1, i+right), "$T" + String.valueOf(this.TempCounter)));
+					subBuilder.delete(i-left, i+right);
+					subBuilder.insert(i-left, "$T"+String.valueOf(this.TempCounter));
+				}
 				this.TempCounter ++;
 			}
 			else if(multOp == -1 && divOp != -1)
@@ -771,9 +931,56 @@ class IRNodeList
 					this.TempCounter ++;
 					right = CheckRightExpression(subBuilder, i);
 				}
-				this.NodeList.add(new IRNode("DIVF", subBuilder.substring(i-left, i), subBuilder.substring(i+1, i+right), "$T" + String.valueOf(this.TempCounter)));
-				subBuilder.delete(i-left, i+right);
-				subBuilder.insert(i-left, "$T"+String.valueOf(this.TempCounter));
+				if(!(this.FunctionCount == 1 && this.CurrentFunction.equals("main")))
+				{
+					for(SymbolTable ST : this.STS.SymbolTables)
+					{
+						if(ST.Scope.equals(this.CurrentFunction))
+						{
+							int paramIndex = 1;
+							for(String S : ST.Parameters)
+							{
+								if(S.equals(subBuilder.substring(i-left, i)))
+								{
+									subBuilder.delete(i-left, i);
+									subBuilder.insert(i-left, "$P"+String.valueOf(paramIndex));
+									
+									if(paramIndex < 10)
+									{
+										i += 2;
+									}
+									else if(paramIndex < 100)
+									{
+										i += 3;
+									}
+									else if(paramIndex < 1000)
+									{
+										i += 4;
+									}
+									i -= (left-1);
+									left = CheckLeftExpression(subBuilder, i);
+								}
+								if(S.equals(subBuilder.substring(i+1, i+right)))
+								{
+									subBuilder.delete(i+1, i+right);
+									subBuilder.insert(i+1, "$P"+String.valueOf(paramIndex));
+									right = CheckRightExpression(subBuilder, i);
+								}
+								paramIndex ++;
+							}
+						}
+					}
+					this.NodeList.add(new IRNode("DIVF", subBuilder.substring(i-left, i), subBuilder.substring(i+1, i+right), "$T" + String.valueOf(this.TempCounter))); 
+					subBuilder.delete(i-left, i+right);
+					subBuilder.insert(i-left, "$T"+String.valueOf(this.TempCounter));
+					
+				}
+				else
+				{
+					this.NodeList.add(new IRNode("DIVF", subBuilder.substring(i-left, i), subBuilder.substring(i+1, i+right), "$T" + String.valueOf(this.TempCounter)));
+					subBuilder.delete(i-left, i+right);
+					subBuilder.insert(i-left, "$T"+String.valueOf(this.TempCounter));
+				}
 				this.TempCounter ++;
 			}
 			else if(multOp != -1 && divOp != -1)
@@ -852,7 +1059,6 @@ class IRNodeList
 						this.TempCounter ++;
 						left = CheckLeftExpression(subBuilder, i);
 					}
-					//System.out.println(subBuilder);
 					int right = CheckRightExpression(subBuilder, i);
 					if(HelperFunctions.IsFloat(subBuilder.substring(i+1, i+right).toString()))
 					{
@@ -862,9 +1068,57 @@ class IRNodeList
 						this.TempCounter ++;
 						right = CheckRightExpression(subBuilder, i);
 					}
-					this.NodeList.add(new IRNode("ADDF", subBuilder.substring(i-left, i), subBuilder.substring(i+1, i+right), "$T" + String.valueOf(this.TempCounter)));
-					subBuilder.delete(i-left, i+right);
-					subBuilder.insert(i-left, "$T"+String.valueOf(this.TempCounter));
+					
+					if(!(this.FunctionCount == 1 && this.CurrentFunction.equals("main")))
+					{
+						for(SymbolTable ST : this.STS.SymbolTables)
+						{
+							if(ST.Scope.equals(this.CurrentFunction))
+							{
+								int paramIndex = 1;
+								for(String S : ST.Parameters)
+								{
+									if(S.equals(subBuilder.substring(i-left, i)))
+									{
+										subBuilder.delete(i-left, i);
+										subBuilder.insert(i-left, "$P"+String.valueOf(paramIndex));
+										
+										if(paramIndex < 10)
+										{
+											i += 2;
+										}
+										else if(paramIndex < 100)
+										{
+											i += 3;
+										}
+										else if(paramIndex < 1000)
+										{
+											i += 4;
+										}
+										i -= (left-1);
+										left = CheckLeftExpression(subBuilder, i);
+									}
+									if(S.equals(subBuilder.substring(i+1, i+right)))
+									{
+										subBuilder.delete(i+1, i+right);
+										subBuilder.insert(i+1, "$P"+String.valueOf(paramIndex));
+										right = CheckRightExpression(subBuilder, i);
+									}
+									paramIndex ++;
+								}
+							}
+						}
+						this.NodeList.add(new IRNode("ADDF", subBuilder.substring(i-left, i), subBuilder.substring(i+1, i+right), "$T" + String.valueOf(this.TempCounter))); 
+						subBuilder.delete(i-left, i+right);
+						subBuilder.insert(i-left, "$T"+String.valueOf(this.TempCounter));
+						
+					}
+					else
+					{
+						this.NodeList.add(new IRNode("ADDF", subBuilder.substring(i-left, i), subBuilder.substring(i+1, i+right), "$T" + String.valueOf(this.TempCounter))); //Liow
+						subBuilder.delete(i-left, i+right);
+						subBuilder.insert(i-left, "$T"+String.valueOf(this.TempCounter));
+					}
 					this.TempCounter ++;
 				}
 				else if(addOp == -1 && subOp != -1)
@@ -873,7 +1127,6 @@ class IRNodeList
 					int left = CheckLeftExpression(subBuilder, i);
 					if(HelperFunctions.IsFloat(subBuilder.substring(i-left, i).toString()))
 					{
-						//System.out.println("Number found in expression: " + subBuilder.substring(i+1, i+right));
 						this.NodeList.add(new IRNode("STOREF", subBuilder.substring(i-left, i), "$T" + String.valueOf(this.TempCounter)));
 						subBuilder.delete(i-left, i);
 						subBuilder.insert(i-left, "$T" + String.valueOf(this.TempCounter));

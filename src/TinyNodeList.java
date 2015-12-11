@@ -22,7 +22,6 @@ public class TinyNodeList
 
 		public TinyNode(String convertedText)
 		{
-			//this.op = ;
 			this.text = convertedText;
 		}
 	}
@@ -70,7 +69,6 @@ public class TinyNodeList
 
 	public void AddTinyNode(String convertedText)
 	{
-		//System.out.println("Adding Tiny Node!");
 		TinyNode tn = new TinyNode(convertedText);
 		tn.prev = this.tail;
 		this.tail.next = tn;
@@ -79,14 +77,10 @@ public class TinyNodeList
 
 	public String CheckReg(String regText)
 	{
-		/*
-		if(regText.indexOf('$') != -1)
+		if(regText.contains("$P") || regText.contains("$R"))
 		{
-			return "r" + String.valueOf(this.tempCount);
-			//this.tempCount ++;
+			return regText;
 		}
-		return regText;
-		*/
 		if(regText.indexOf('$') != -1)
 		{
 			return "r" + String.valueOf(Integer.parseInt(regText.replace("$T", ""))-1);
@@ -98,8 +92,35 @@ public class TinyNodeList
 	{
 		for(IRNode irn : this.IR.NodeList)
 		{
-			//System.out.println(irn.OpCode);
-			if(irn.OpCode == "ADDI")
+
+			if(irn.OpCode == "LINK")
+			{
+				this.AddTinyNode("link 5");
+			}
+			else if(irn.OpCode == "RET")
+			{
+				this.AddTinyNode("unlnk");
+				this.AddTinyNode("ret");
+			}
+			else if(irn.OpCode == "JSR")
+			{
+				this.AddTinyNode("push r0");
+				this.AddTinyNode("push r1");
+				this.AddTinyNode("push r2");
+				this.AddTinyNode("push r3");
+				this.AddTinyNode("jsr " + irn.Result);
+				this.AddTinyNode("pop r3");
+				this.AddTinyNode("pop r2");
+				this.AddTinyNode("pop r1");
+				this.AddTinyNode("pop r0");
+			}
+			else if(irn.OpCode == "PUSH")
+			{
+			}
+			else if(irn.OpCode == "")
+			{
+			}
+			else if(irn.OpCode == "ADDI")
 			{
 				this.AddTinyNode("move " + this.CheckReg(irn.FirstOperand) + " " + this.CheckReg(irn.Result));
 				this.AddTinyNode("addi " + this.CheckReg(irn.SecondOperand) + " " + this.CheckReg(irn.Result));
@@ -283,8 +304,8 @@ public class TinyNodeList
 		this.IR = irnodes;
 		this.GetVariables();
 		this.ConvertNodes();
+		//System.out.println("reached");
 		this.PrintNodes();
-
 	}
 }
 
