@@ -56,7 +56,16 @@ class IRNodeList
 						{
 							if(ST.ReturnType.equals("INT"))
 							{
-								this.NodeList.add(new IRNode("STOREI", ST.ReturnValue, "$R"));
+								if(HelperFunctions.isInteger(ST.ReturnValue))
+								{
+									this.NodeList.add(new IRNode("STOREI", ST.ReturnValue, "$T" + String.valueOf(this.TempCounter)));
+									this.NodeList.add(new IRNode("STOREI", "$T" + String.valueOf(this.TempCounter), "$R"));
+									this.TempCounter ++;
+								}
+								else
+								{
+									this.NodeList.add(new IRNode("STOREI", ST.ReturnValue, "$R"));
+								}
 							}
 							else if(ST.ReturnType.equals("FLOAT"))
 							{

@@ -11,8 +11,12 @@ public class TinyNodeList
 	TinyNode head;
 	TinyNode tail;
 	public String CurrentFunction = "";
-	public int FunctionRegs = 4;
+	public int FunctionRegs = 0;
+	public int ROffset = 0;
 	public int ProgramType = 0;
+	public boolean PopFlag = false;
+	public boolean FunctionLinkFlag = false;
+
 	class TinyNode
 	{
 		TinyNode prev;
@@ -103,13 +107,32 @@ public class TinyNodeList
 		{
 			return regText.replaceAll("L", "-");
 		}
-		if(regText.contains("$P") || regText.contains("$R"))
+		if(regText.contains("$P"))
+		{
+			regText = regText.replaceAll("\\$", "");
+			regText = regText.replaceAll("P", "");
+			int offset = Integer.parseInt(regText);
+			String converted = "$" + String.valueOf(8-offset);
+			return converted;
+		}
+		if(regText.contains("$R"))
 		{
 			return regText;
 		}
-		if(regText.indexOf('$') != -1)
+
+		if(this.FunctionLinkFlag || this.ProgramType == 1)
 		{
-			return "r" + String.valueOf(Integer.parseInt(regText.replace("$T", ""))-1);
+			if(regText.indexOf('$') != -1)
+			{
+				return "r" + String.valueOf(this.FunctionRegs);
+			}
+		}
+		else
+		{
+			if(regText.indexOf('$') != -1)
+			{
+				return "r" + String.valueOf(Integer.parseInt(regText.replace("$T", ""))-1);
+			}
 		}
 		return regText;
 	}
@@ -126,6 +149,10 @@ public class TinyNodeList
 					if(ST.Scope.equals(this.CurrentFunction))
 					{
 						localVarCount = ST.Locals.size();
+						if(!ST.Scope.equals("main"))
+						{
+							this.FunctionLinkFlag = true;
+						}
 					}
 				}
 				this.AddTinyNode("link " + String.valueOf(localVarCount));
@@ -134,6 +161,7 @@ public class TinyNodeList
 			{
 				this.AddTinyNode("unlnk");
 				this.AddTinyNode("ret");
+				this.FunctionLinkFlag = false;
 			}
 			else if(irn.OpCode == "JSR")
 			{
@@ -146,7 +174,6 @@ public class TinyNodeList
 				this.AddTinyNode("pop r2");
 				this.AddTinyNode("pop r1");
 				this.AddTinyNode("pop r0");
-				//this.CurrentFunction = irn.Result;
 			}
 			else if(irn.OpCode == "PUSH")
 			{
@@ -168,7 +195,7 @@ public class TinyNodeList
 				else
 				{
 					this.AddTinyNode("pop " + "r" + String.valueOf(this.FunctionRegs));
-					this.FunctionRegs ++;
+					this.PopFlag = true;
 				}
 			}
 			else if(irn.OpCode == "")
@@ -196,8 +223,16 @@ public class TinyNodeList
 			}
 			else if(irn.OpCode == "ADDF")
 			{
-				this.AddTinyNode("move " + this.CheckReg(irn.FirstOperand) + " " + this.CheckReg(irn.Result));
-				this.AddTinyNode("addr " + this.CheckReg(irn.SecondOperand) + " " + this.CheckReg(irn.Result));
+				if(this.ProgramType == 1)
+				{
+					this.AddTinyNode("move " + this.CheckReg(irn.FirstOperand) + " " + this.CheckReg(irn.Result));
+					this.AddTinyNode("addr " + this.CheckReg(irn.SecondOperand) + " " + this.CheckReg(irn.Result));
+				}
+				else
+				{
+					this.AddTinyNode("move " + this.CheckReg(irn.FirstOperand) + " " + this.CheckReg(irn.Result));
+					this.AddTinyNode("addr " + this.CheckReg(irn.SecondOperand) + " " + this.CheckReg(irn.Result));
+				}
 			}
 			else if(irn.OpCode == "SUBF")
 			{
@@ -218,7 +253,34 @@ public class TinyNodeList
 			{
 				if(this.ProgramType == 1)
 				{
-					this.AddTinyNode("move " + this.CheckReg(irn.FirstOperand) + " " + this.CheckReg(irn.Result));
+					if(this.PopFlag)
+					{
+						this.AddTinyNode("move " + "r" + String.valueOf(this.FunctionRegs) + " " + this.CheckReg(irn.Result));
+						this.PopFlag = false;
+						this.FunctionRegs ++;
+					}
+					else if(irn.Result.equals("$R")) // at a function return
+					{
+						if(this.FunctionLinkFlag)
+						{
+							this.AddTinyNode("move " + "r" + String.valueOf(this.FunctionRegs) + " $-1"); // hardcoded the $-1 for now, fix later 
+							this.AddTinyNode("move " + "$-1 " + "r" + String.valueOf(this.FunctionRegs+1));
+							this.AddTinyNode("move " + "r" + String.valueOf(this.FunctionRegs+1) + " $8"); // $8 is tiny return value for stack address
+							this.FunctionRegs += 2;
+						}
+						else if(this.CurrentFunction.equals("main"))
+						{
+							this.AddTinyNode("move " + "r" + String.valueOf(this.FunctionRegs+1) + " $6");
+						}
+					}
+					else if(Pattern.matches("[a-zA-Z]+", irn.Result))
+					{
+						// do nothing?
+					}
+					else
+					{
+						this.AddTinyNode("move " + this.CheckReg(irn.FirstOperand) + " " + this.CheckReg(irn.Result));
+					}
 				}
 				else
 				{
@@ -230,7 +292,27 @@ public class TinyNodeList
 			{
 				if(this.ProgramType == 1)
 				{
-					this.AddTinyNode("move " + this.CheckReg(irn.FirstOperand) + " " + this.CheckReg(irn.Result));
+					if(this.PopFlag)
+					{
+						this.AddTinyNode("move " + "r" + String.valueOf(this.FunctionRegs) + " " + this.CheckReg(irn.Result));
+						this.PopFlag = false;
+						this.FunctionRegs ++;
+					}
+					else if(irn.Result.equals("$R")) // at a function return
+					{
+						this.AddTinyNode("move " + "r" + String.valueOf(this.FunctionRegs) + " $-1"); // hardcoded the $-1 for now, fix later 
+						this.AddTinyNode("move " + "$-1 " + "r" + String.valueOf(this.FunctionRegs+1));
+						this.AddTinyNode("move " + "r" + String.valueOf(this.FunctionRegs+1) + " $8"); // $8 is tiny return value for stack address
+						this.FunctionRegs += 2;
+					}
+					else if(Pattern.matches("[a-zA-Z]+", irn.Result))
+					{
+						// do nothing?
+					}
+					else
+					{
+						this.AddTinyNode("move " + this.CheckReg(irn.FirstOperand) + " " + this.CheckReg(irn.Result));
+					}
 				}
 				else
 				{
@@ -383,13 +465,12 @@ public class TinyNodeList
 		}
 		if(this.ProgramType == 1)
 		{
-			this.AddTinyNode();
+			this.AddTinyNode("end");
 		}
 		else
 		{
 			this.AddTinyNode("sys halt");
 		}
-		
 	}
 
 	public void PrintNodes()

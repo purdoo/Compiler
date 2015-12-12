@@ -56,7 +56,16 @@ class IRNodeList
 						{
 							if(ST.ReturnType.equals("INT"))
 							{
-								this.NodeList.add(new IRNode("STOREI", ST.ReturnValue, "$R"));
+								if(HelperFunctions.isInteger(ST.ReturnValue))
+								{
+									this.NodeList.add(new IRNode("STOREI", ST.ReturnValue, "$T" + String.valueOf(this.TempCounter)));
+									this.NodeList.add(new IRNode("STOREI", "$T" + String.valueOf(this.TempCounter), "$R"));
+									this.TempCounter ++;
+								}
+								else
+								{
+									this.NodeList.add(new IRNode("STOREI", ST.ReturnValue, "$R"));
+								}
 							}
 							else if(ST.ReturnType.equals("FLOAT"))
 							{
@@ -505,15 +514,11 @@ class IRNodeList
 						this.NodeList.add(new IRNode("POP", "$T" + String.valueOf(this.TempCounter))); // Pop the return value
 						for(SymbolTable ST : this.STS.SymbolTables)
 						{
-							System.out.println(E.id);
-							//System.out.println(ST.Scope);
-							//System.out.println(ST.ReturnValue);
 							if(ST.Scope.equals(this.CurrentFunction))
 							{
 								int localIndex = 1;
 								for(String local : ST.Locals)
 								{
-									System.out.println(local);
 									if(E.id.equals(local))
 									{
 										if(SymbolLookup(E.id).equals("INT"))
