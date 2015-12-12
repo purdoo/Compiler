@@ -1,5 +1,5 @@
 import java.util.*;
-
+import java.util.regex.Pattern;
 
 public class TinyNodeList
 {
@@ -10,7 +10,9 @@ public class TinyNodeList
 	List<String> strs = new ArrayList<String>();
 	TinyNode head;
 	TinyNode tail;
-	
+	public String CurrentFunction = "";
+	public int FunctionRegs = 4;
+	public int ProgramType = 0;
 	class TinyNode
 	{
 		TinyNode prev;
@@ -43,6 +45,11 @@ public class TinyNodeList
 
 	public void GetVariables()
 	{
+		SymbolTable FirstTable = STS.SymbolTables.get(1); // not 0 since that is always the GLOBAL table
+		if(!FirstTable.Scope.equals("main"))
+		{
+			this.ProgramType = 1;
+		}
 		for(SymbolTable ST : this.STS.SymbolTables)
 		{
 			for(Symbol S : ST.SYMBOLS)
@@ -57,13 +64,28 @@ public class TinyNodeList
 				}
 			}
 		}
-		for(String s : this.vars)
+		if(this.ProgramType == 0)
 		{
-			this.AddTinyNode("var " + s);
+			for(String s : this.vars)
+			{
+				this.AddTinyNode("var " + s);
+			}
 		}
 		for(String s : this.strs)
 		{
 			this.AddTinyNode("str " + s);
+		}
+		if(this.ProgramType == 1)
+		{
+			this.AddTinyNode("push");
+			this.AddTinyNode("push r0");
+			this.AddTinyNode("push r1");
+			this.AddTinyNode("push r2");
+			this.AddTinyNode("push r3");
+			this.AddTinyNode("jsr main");
+			this.AddTinyNode("sys halt");
+			this.CurrentFunction = "main";
+			this.ProgramType = 1; // 1 for functions, 0 for no function
 		}
 	}
 
@@ -77,6 +99,10 @@ public class TinyNodeList
 
 	public String CheckReg(String regText)
 	{
+		if(regText.contains("$L"))
+		{
+			return regText.replaceAll("L", "-");
+		}
 		if(regText.contains("$P") || regText.contains("$R"))
 		{
 			return regText;
@@ -92,10 +118,17 @@ public class TinyNodeList
 	{
 		for(IRNode irn : this.IR.NodeList)
 		{
-
 			if(irn.OpCode == "LINK")
 			{
-				this.AddTinyNode("link 5");
+				int localVarCount = 0;
+				for(SymbolTable ST : this.STS.SymbolTables)
+				{
+					if(ST.Scope.equals(this.CurrentFunction))
+					{
+						localVarCount = ST.Locals.size();
+					}
+				}
+				this.AddTinyNode("link " + String.valueOf(localVarCount));
 			}
 			else if(irn.OpCode == "RET")
 			{
@@ -113,9 +146,30 @@ public class TinyNodeList
 				this.AddTinyNode("pop r2");
 				this.AddTinyNode("pop r1");
 				this.AddTinyNode("pop r0");
+				//this.CurrentFunction = irn.Result;
 			}
 			else if(irn.OpCode == "PUSH")
 			{
+				if(irn.Result.equals(""))
+				{
+					this.AddTinyNode("push");
+				}
+				else
+				{
+					this.AddTinyNode("push " + irn.Result.replaceAll("L","-"));
+				}
+			}
+			else if(irn.OpCode == "POP")
+			{
+				if(irn.Result.equals(""))
+				{
+					this.AddTinyNode("pop");
+				}
+				else
+				{
+					this.AddTinyNode("pop " + "r" + String.valueOf(this.FunctionRegs));
+					this.FunctionRegs ++;
+				}
 			}
 			else if(irn.OpCode == "")
 			{
@@ -162,27 +216,70 @@ public class TinyNodeList
 			}
 			else if(irn.OpCode == "STOREI")
 			{
-				this.AddTinyNode("move " + this.CheckReg(irn.FirstOperand) + " " + this.CheckReg(irn.Result));
+				if(this.ProgramType == 1)
+				{
+					this.AddTinyNode("move " + this.CheckReg(irn.FirstOperand) + " " + this.CheckReg(irn.Result));
+				}
+				else
+				{
+					this.AddTinyNode("move " + this.CheckReg(irn.FirstOperand) + " " + this.CheckReg(irn.Result));
+				}
+				
 			}
 			else if(irn.OpCode == "STOREF")
 			{
-				this.AddTinyNode("move " + this.CheckReg(irn.FirstOperand) + " " + this.CheckReg(irn.Result));
+				if(this.ProgramType == 1)
+				{
+					this.AddTinyNode("move " + this.CheckReg(irn.FirstOperand) + " " + this.CheckReg(irn.Result));
+				}
+				else
+				{
+					this.AddTinyNode("move " + this.CheckReg(irn.FirstOperand) + " " + this.CheckReg(irn.Result));
+				}
 			}
 			else if(irn.OpCode == "READI")
 			{
-				this.AddTinyNode("sys readi " + irn.Result);
+				if(this.ProgramType == 1)
+				{
+					this.AddTinyNode("sys readi " + irn.Result.replaceAll("L","-"));
+				}
+				else
+				{
+					this.AddTinyNode("sys readi " + irn.Result);
+				}
 			}
 			else if(irn.OpCode == "READF")
 			{
-				this.AddTinyNode("sys readr " + irn.Result);
+				if(this.ProgramType == 1)
+				{
+					this.AddTinyNode("sys readr " + irn.Result.replaceAll("L","-"));
+				}
+				else
+				{
+					this.AddTinyNode("sys readr " + irn.Result);
+				}
 			}
 			else if(irn.OpCode == "WRITEI")
 			{
-				this.AddTinyNode("sys writei " + irn.Result);
+				if(this.ProgramType == 1)
+				{
+					this.AddTinyNode("sys writei " + irn.Result.replaceAll("L","-"));
+				}
+				else
+				{
+					this.AddTinyNode("sys writei " + irn.Result);
+				}
 			}
 			else if(irn.OpCode == "WRITEF")
 			{
-				this.AddTinyNode("sys writer " + irn.Result);
+				if(this.ProgramType == 1)
+				{
+					this.AddTinyNode("sys writer " + irn.Result.replaceAll("L","-"));
+				}
+				else
+				{
+					this.AddTinyNode("sys writer " + irn.Result);
+				}
 			}
 			else if(irn.OpCode == "WRITES")
 			{
@@ -270,9 +367,13 @@ public class TinyNodeList
 					this.AddTinyNode("jlt " + irn.Result);
 				}
 			}
-
 			else if(irn.OpCode == "LABEL")
 			{
+				// if label is for a function head (since there are no numbers)
+				if(Pattern.matches("[a-zA-Z]+", irn.Result)) 
+				{
+					this.CurrentFunction = irn.Result;
+				}
 				this.AddTinyNode("label " + irn.Result);
 			}
 			else
@@ -280,7 +381,14 @@ public class TinyNodeList
 				System.out.println("Unhandled OpCode: " + irn.OpCode);
 			}
 		}
-		this.AddTinyNode("sys halt");
+		if(this.ProgramType == 1)
+		{
+			this.AddTinyNode("end");
+		}
+		else
+		{
+			this.AddTinyNode("sys halt");
+		}
 	}
 
 	public void PrintNodes()
@@ -304,7 +412,6 @@ public class TinyNodeList
 		this.IR = irnodes;
 		this.GetVariables();
 		this.ConvertNodes();
-		//System.out.println("reached");
 		this.PrintNodes();
 	}
 }
