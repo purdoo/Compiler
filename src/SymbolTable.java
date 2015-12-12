@@ -41,12 +41,13 @@ class SymbolTableStack
 class SymbolTable
 {
 	public String Scope;
+	public String ReturnValue = "";
+	public String ReturnType = "";
 	public List<Symbol> SYMBOLS = new ArrayList<Symbol>();
 	public List<String> Parameters = new ArrayList<String>();
 	public List<String> Locals = new ArrayList<String>();
   //public HashMap<String, Integer> Parameters = new HashMap<String, Integer>();
 	//public HashMap<String, Integer> Locals = new HashMap<String, Integer>();
-	public String ReturnValue = "";
 	public SymbolTable()
 	{
 		this.Scope = "BLOCK " + SymbolTableStack.BlockCount;

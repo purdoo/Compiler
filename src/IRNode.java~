@@ -43,17 +43,6 @@ class IRNodeList
 				{
 					this.NodeList.add(new IRNode("LABEL", temp[1]));
 					this.NodeList.add(new IRNode("LINK", ""));
-					/*
-					for(SymbolTable ST : this.STS.SymbolTables)
-					{
-						if(ST.Scope.equals(temp[1]))
-						{
-							for(String S : ST.Parameters)
-							{
-								System.out.println(S);
-							}
-						}
-					}*/
 				}
 			}
 			if(E.id == "END_FUNCTION")
@@ -65,10 +54,16 @@ class IRNodeList
 					{
 						if(ST.Scope.equals(this.CurrentFunction))
 						{
-							this.NodeList.add(new IRNode("STOREF", ST.ReturnValue, "$R"));
+							if(ST.ReturnType.equals("INT"))
+							{
+								this.NodeList.add(new IRNode("STOREI", ST.ReturnValue, "$R"));
+							}
+							else if(ST.ReturnType.equals("FLOAT"))
+							{
+								this.NodeList.add(new IRNode("STOREF", ST.ReturnValue, "$R"));
+							} 
 						}
 					}
-					//System.out.println(this.NodeList.get(list.size() - 1));
 					this.NodeList.add(new IRNode("RET", ""));
 					this.NodeList.add(new IRNode("", ""));
 				}
@@ -84,6 +79,28 @@ class IRNodeList
 					{
 						if(!(this.FunctionCount == 1 && this.CurrentFunction.equals("main")))
 						{
+							for(SymbolTable ST : this.STS.SymbolTables)
+							{
+								if(ST.Scope.equals(this.CurrentFunction))
+								{
+									int localIndex = 1;
+									for(String local : ST.Locals)
+									{
+										if(s.equals(local))
+										{
+											if(SymbolLookup(s).equals("INT"))
+											{ 
+												this.NodeList.add(new IRNode("WRITEI", "$L" + String.valueOf(localIndex)));
+											}
+											else if(SymbolLookup(s).equals("FLOAT"))
+											{ 
+												this.NodeList.add(new IRNode("WRITEF", "$L" + String.valueOf(localIndex)));
+											}
+										}
+										localIndex ++;
+									}
+								}
+							}
 							if(SymbolLookup(s).equals("STRING"))
 							{
 								this.NodeList.add(new IRNode("WRITES", s));
@@ -149,11 +166,25 @@ class IRNodeList
 							{
 								this.NodeList.add(new IRNode("READI", "$L" + String.valueOf(this.LocalCounter)));
 								this.LocalCounter ++;
+								for(SymbolTable ST : this.STS.SymbolTables)
+								{
+									if(ST.Scope.equals(this.CurrentFunction))
+									{
+										//ST.Locals.add(E.expr);
+									}
+								}
 							}
 							else if(SymbolLookup(E.expr).equals("FLOAT"))
 							{
 								this.NodeList.add(new IRNode("READF", "$L" + String.valueOf(this.LocalCounter)));
 								this.LocalCounter ++;
+								for(SymbolTable ST : this.STS.SymbolTables)
+								{
+									if(ST.Scope.equals(this.CurrentFunction))
+									{
+										//ST.Locals.add(E.expr);
+									}
+								}
 							}
 						}
 						else
@@ -161,12 +192,26 @@ class IRNodeList
 							if(SymbolLookup(s).equals("INT"))
 							{
 								this.NodeList.add(new IRNode("READI", s));
+								for(SymbolTable ST : this.STS.SymbolTables)
+								{
+									if(ST.Scope.equals(this.CurrentFunction))
+									{
+										//ST.Locals.add(E.expr);
+									}
+								}
 							}
 							else if(SymbolLookup(s).equals("FLOAT"))
 							{
 								this.NodeList.add(new IRNode("READF", s));
+								for(SymbolTable ST : this.STS.SymbolTables)
+								{
+									if(ST.Scope.equals(this.CurrentFunction))
+									{
+										//ST.Locals.add(E.expr);
+									}
+								}
 							}
-							else if(SymbolLookup(s).equals("FLOAT"))
+							else if(SymbolLookup(s).equals("STRING"))
 							{
 								this.NodeList.add(new IRNode("READS", s));
 							}
@@ -182,11 +227,25 @@ class IRNodeList
 						{
 							this.NodeList.add(new IRNode("READI", "$L" + String.valueOf(this.LocalCounter)));
 							this.LocalCounter ++;
+							for(SymbolTable ST : this.STS.SymbolTables)
+							{
+								if(ST.Scope.equals(this.CurrentFunction))
+								{
+									//ST.Locals.add(E.expr);
+								}
+							}
 						}
 						else if(SymbolLookup(E.expr).equals("FLOAT"))
 						{
 							this.NodeList.add(new IRNode("READF", "$L" + String.valueOf(this.LocalCounter)));
 							this.LocalCounter ++;
+							for(SymbolTable ST : this.STS.SymbolTables)
+							{
+								if(ST.Scope.equals(this.CurrentFunction))
+								{
+									//ST.Locals.add(E.expr);
+								}
+							}
 						}
 					}
 					else
@@ -199,7 +258,7 @@ class IRNodeList
 						{
 							this.NodeList.add(new IRNode("READF", E.expr));
 						}
-						else if(SymbolLookup(E.expr).equals("FLOAT"))
+						else if(SymbolLookup(E.expr).equals("STRING"))
 						{
 							this.NodeList.add(new IRNode("READS", E.expr));
 						}
@@ -223,7 +282,6 @@ class IRNodeList
 				{
 					rhs = exprBuilder.substring(opIndex+2, expr.length());
 				}
-				//System.out.println(rhs);
 				if(rhs.contains("(") && rhs.contains(")"))
 				{
 					//(0.0-tolerance)
@@ -400,35 +458,79 @@ class IRNodeList
 			}
 			else if(E.id == "ROF")
 			{
-				//System.out.println("For Loop Ended...");
 				this.NodeList.add(new IRNode("LABEL", "label" + String.valueOf(this.Labels.get(this.LabelIndex) + 2)));
 				this.Labels.remove(this.LabelIndex);
 				this.LabelIndex --;
 			}
-
-			else // an add/sub/mult/div or assign function
+			else 
 			{
 				if(HelperFunctions.ExpressionType(E.expr) == 0) // assign function
 				{
-					//System.out.println(E.expr); Liow
-					if(E.expr.contains("(") && E.expr.contains(")"))
+					if(E.expr.contains("(") && E.expr.contains(")")) // function call
 					{
+						int paramCount = 0;
 						String[] temp;
+						String[] split;
 						temp = E.expr.split("\\(");
-						// need to push here
 						this.NodeList.add(new IRNode("PUSH", ""));
-						/*
-						for(SymbolTable ST : this.STS.SymbolTables)
+						temp[1] = temp[1].replaceAll("\\)", "");
+						temp[1] = temp[1].replaceAll("\\s","");
+						split = temp[1].split(",");
+						String retType = "";
+						for(String s : split)
 						{
-							if(ST.Scope.equals(temp[0]))
+							for(SymbolTable ST : this.STS.SymbolTables)
 							{
-								for(Symbol S : ST.SYMBOLS)
+								if(ST.Scope.equals(this.CurrentFunction))
 								{
-									System.out.println(S.var_name);
+									retType = ST.ReturnType;
+									int localIndex = 1;
+									for(String local : ST.Locals)
+									{
+										if(local.equals(s))
+										{
+											this.NodeList.add(new IRNode("PUSH", "$L" + String.valueOf(localIndex)));
+											paramCount += 1;
+										}
+										localIndex ++;
+									}
 								}
 							}
-						}*/
+						}
 						this.NodeList.add(new IRNode("JSR", temp[0]));
+						for (int i = 0; i < paramCount; i++)
+						{
+							this.NodeList.add(new IRNode("POP", "")); // Pop once for every function parameter
+						}
+						this.NodeList.add(new IRNode("POP", "$T" + String.valueOf(this.TempCounter))); // Pop the return value
+						for(SymbolTable ST : this.STS.SymbolTables)
+						{
+							System.out.println(E.id);
+							//System.out.println(ST.Scope);
+							//System.out.println(ST.ReturnValue);
+							if(ST.Scope.equals(this.CurrentFunction))
+							{
+								int localIndex = 1;
+								for(String local : ST.Locals)
+								{
+									System.out.println(local);
+									if(E.id.equals(local))
+									{
+										if(SymbolLookup(E.id).equals("INT"))
+										{ 
+											this.NodeList.add(new IRNode("STOREI", "$T" + String.valueOf(this.TempCounter), "$L" + String.valueOf(localIndex)));
+										}
+										else if(SymbolLookup(E.id).equals("FLOAT"))
+										{ 
+											this.NodeList.add(new IRNode("STOREF", "$T" + String.valueOf(this.TempCounter), "$L" + String.valueOf(localIndex)));
+										}
+										
+									}
+									localIndex ++;
+								}
+							}
+						}
+						this.TempCounter ++;
 					}
 					else if(SymbolLookup(E.id).equals("INT"))
 					{

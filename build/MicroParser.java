@@ -1048,6 +1048,7 @@ public class MicroParser extends Parser {
 			 
 				STACK.AddTable(TABLE); 
 				TABLE = new SymbolTable((((Func_declContext)_localctx).id!=null?_input.getText(((Func_declContext)_localctx).id.start,((Func_declContext)_localctx).id.stop):null));
+				TABLE.ReturnType = (((Func_declContext)_localctx).any_type!=null?_input.getText(((Func_declContext)_localctx).any_type.start,((Func_declContext)_localctx).any_type.stop):null);
 
 			setState(178);
 			match(T__11);

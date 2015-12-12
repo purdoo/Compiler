@@ -63,6 +63,7 @@ func_decl: 'FUNCTION' any_type id
 { 
 	STACK.AddTable(TABLE); 
 	TABLE = new SymbolTable($id.text);
+	TABLE.ReturnType = $any_type.text;
 }
 '(' param_decl_list ')' 
 {

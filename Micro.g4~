@@ -38,6 +38,7 @@ var_decl: var_type id_list
 {
 	String[] vars = $id_list.text.split(",");
 	TABLE.Add($var_type.text, vars);
+	TABLE.AddLocal(vars);
 } 
 ';';
 var_type: 'FLOAT' | 'INT';
@@ -62,6 +63,7 @@ func_decl: 'FUNCTION' any_type id
 { 
 	STACK.AddTable(TABLE); 
 	TABLE = new SymbolTable($id.text);
+	
 }
 '(' param_decl_list ')' 
 {
